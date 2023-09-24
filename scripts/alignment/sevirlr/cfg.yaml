@@ -1,0 +1,148 @@
+dataset:
+  dataset_name: "sevirlr"
+  img_height: 128
+  img_width: 128
+  in_len: 7
+  out_len: 6
+  seq_len: 13
+  plot_stride: 1
+  interval_real_time: 10
+  sample_mode: "sequent"
+  stride: 6
+  layout: "NTHWC"
+  start_date: null
+  train_test_split_date: [2019, 6, 1]
+  end_date: null
+  val_ratio: 0.1
+  metrics_mode: "0"
+  metrics_list: ['csi', 'pod', 'sucr', 'bias']
+  threshold_list: [16, 74, 133, 160, 181, 219]
+  aug_mode: "2"
+layout:
+  in_len: 7
+  out_len: 6
+  img_height: 128
+  img_width: 128
+  data_channels: 1
+  layout: "NTHWC"
+optim:
+  total_batch_size: 128
+  micro_batch_size: 32
+  seed: 0
+  float32_matmul_precision: "high"
+  method: "adamw"
+  lr: 1.0e-3
+  wd: 1.0e-2
+  betas: [0.9, 0.999]
+  gradient_clip_val: 1.0
+  max_epochs: 1000
+  loss_type: "l2"
+  # scheduler
+  warmup_percentage: 0.1
+  lr_scheduler_mode: "cosine"
+  min_lr_ratio: 1.0e-3
+  warmup_min_lr_ratio: 0.1
+  plateau_patience: 10
+  # early stopping
+  monitor: "val_loss"
+  early_stop: false
+  early_stop_mode: "min"
+  early_stop_patience: 100
+  save_top_k: 3
+logging:
+  logging_prefix: "SEVIR-LR_AvgX"
+  monitor_lr: true
+  monitor_device: false
+  track_grad_norm: -1
+  use_wandb: false
+  profiler: null
+trainer:
+  check_val_every_n_epoch: 5
+  log_step_ratio: 0.001
+  precision: 32
+  find_unused_parameters: false
+  num_sanity_val_steps: 2
+vis:
+  train_example_data_idx_list: []
+  val_example_data_idx_list: []
+  test_example_data_idx_list: []
+  eval_example_only: false
+  num_samples_per_context: 1
+  save_gif: false
+  gif_fps: 2.0
+model:
+  diffusion:
+    timesteps: 1000
+    beta_schedule: "linear"
+    linear_start: 1e-4
+    linear_end: 2e-2
+    cosine_s: 8e-3
+    given_betas: null
+    # latent diffusion
+    cond_stage_model: "__is_first_stage__"
+    num_timesteps_cond: null
+    cond_stage_trainable: false
+    cond_stage_forward: null
+    scale_by_std: false
+    scale_factor: 1.0
+  align:
+    alignment_type: "avg_x"
+    model_type: "cuboid"
+    model_args:
+      input_shape: [ 6, 16, 16, 64 ]
+      out_channels: 1
+      base_units: 128
+      scale_alpha: 1.0
+      depth: [ 1, 1 ]
+      downsample: 2
+      downsample_type: "patch_merge"
+      block_attn_patterns: "axial"
+      num_heads: 4
+      attn_drop: 0.1
+      proj_drop: 0.1
+      ffn_drop: 0.1
+      ffn_activation: "gelu"
+      gated_ffn: false
+      norm_layer: "layer_norm"
+      use_inter_ffn: true
+      hierarchical_pos_embed: false
+      pos_embed_type: "t+h+w"
+      padding_type: "zeros"
+      checkpoint_level: 0
+      use_relative_pos: true
+      self_attn_use_final_proj: true
+      # global vectors
+      num_global_vectors: 0
+      use_global_vector_ffn: true
+      use_global_self_attn: false
+      separate_global_qkv: false
+      global_dim_ratio: 1
+      # initialization
+      attn_linear_init_mode: "0"
+      ffn_linear_init_mode: "0"
+      ffn2_linear_init_mode: "2"
+      attn_proj_linear_init_mode: "2"
+      conv_init_mode: "0"
+      down_linear_init_mode: "0"
+      global_proj_linear_init_mode: "2"
+      norm_init_mode: "0"
+      # timestep embedding for diffusion
+      time_embed_channels_mult: 4
+      time_embed_use_scale_shift_norm: false
+      time_embed_dropout: 0.0
+      # readout
+      pool: "attention"
+      readout_seq: true
+      out_len: 6
+  vae:
+    pretrained_ckpt_path: "pretrained_sevirlr_vae_8x8x64_v1.pt"
+    data_channels: 1
+    down_block_types: ['DownEncoderBlock2D', 'DownEncoderBlock2D', 'DownEncoderBlock2D', 'DownEncoderBlock2D']
+    in_channels: 1
+    block_out_channels: [128, 256, 512, 512]  # downsample `len(block_out_channels) - 1` times
+    act_fn: 'silu'
+    latent_channels: 64
+    up_block_types: ['UpDecoderBlock2D', 'UpDecoderBlock2D', 'UpDecoderBlock2D', 'UpDecoderBlock2D']
+    norm_num_groups: 32
+    layers_per_block: 2
+    out_channels: 1

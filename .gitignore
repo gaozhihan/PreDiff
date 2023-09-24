@@ -1,0 +1,63 @@
+# VSCode configs
+.vscode/
+
+# Log files
+*.log
+events.out.tfevents.*
+
+# python temp files
+_cache_
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.mypy_cache/
+.pytest_cache/
+
+# Environments
+.idea/
+
+# MacOS
+.DS_Store
+
+# tarballs & archives
+*.tar
+*.tar.gz
+*.gz
+*.pth
+*.pt
+*.zip
+*.ckpt
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+
+# LMDB data file
+*.mdb
+
+# numpy data file
+*.npy
+*.npz
+
+# TFRecord data file
+*.tfrecords
+
+# image samples
+*.png
+*.jpg
+*.jpeg
+*.pptx
+*.pdf
+
+# package install info
+*.egg-info/
+
+# Experiments
+experiments/
+
+# local notebooks, logs, scripts, etc.
+locals/
