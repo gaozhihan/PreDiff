@@ -26,7 +26,7 @@ optim:
   float32_matmul_precision: "high"
   seed: 0
   method: "adam"
-  lr: 5e-5
+  lr: 5e-6
   betas: [0.5, 0.9]
   gradient_clip_val: 1.0
   max_epochs: 500
