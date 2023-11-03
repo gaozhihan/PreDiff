@@ -7,9 +7,8 @@ By [Zhihan Gao](https://scholar.google.com/citations?user=P6ACUAUAAAAJ),
 [Xiaoyong Jin](https://scholar.google.com/citations?user=EWiYf7YAAAAJ), 
 [Danielle Maddix Robinson](https://dcmaddix.github.io/),
 [Yi Zhu](https://bryanyzhu.github.io/), 
-[Yuyang Bernie Wang](http://web.mit.edu/~ywang02/www/), 
 [Mu Li](https://github.com/mli), 
-[Dit-Yan Yeung](https://sites.google.com/view/dyyeung/).
+[Yuyang Bernie Wang](http://web.mit.edu/~ywang02/www/).
 
 This repo is the official implementation of ["PreDiff: Precipitation Nowcasting with Latent Diffusion Models"](https://arxiv.org/abs/2307.10422) that will appear in NeurIPS 2023.
 
