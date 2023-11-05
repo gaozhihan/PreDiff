@@ -119,7 +119,7 @@ Find detailed instructions in how to train the models or running inference with 
 ```
 @inproceedings{gao2023prediff,
   title={PreDiff: Precipitation Nowcasting with Latent Diffusion Models},
-  author={Gao, Zhihan and Shi, Xingjian and Han, Boran and Wang, Hao and Jin, Xiaoyong and Robinson, Danielle and Zhu, Yi and Wang, Yuyang and Li, Mu and Yeung, Dit-Yan},
+  author={Gao, Zhihan and Shi, Xingjian and Han, Boran and Wang, Hao and Jin, Xiaoyong and Robinson, Danielle and Zhu, Yi and Li, Mu and Wang, Yuyang},
   booktitle={NeurIPS},
   year={2023}
 }

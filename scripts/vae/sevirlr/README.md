@@ -1,4 +1,4 @@
-# Train VAE with config adopted from scratch on SEVIR-LR (downsampled low-resolution version) frames
+# Train VAE from scratch on SEVIR-LR (downsampled low-resolution version) frames
 
 ## Commands for training
 Run the following command to train VAE on SEVIR-LR frames. 
