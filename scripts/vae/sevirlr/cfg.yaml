@@ -61,12 +61,12 @@ vis:
   num_vis: 10
 model:
   data_channels: 1
-  down_block_types: ['DownEncoderBlock2D', 'DownEncoderBlock2D', 'DownEncoderBlock2D']
+  down_block_types: ['DownEncoderBlock2D', 'DownEncoderBlock2D', 'DownEncoderBlock2D', 'DownEncoderBlock2D']
   in_channels: 1
-  block_out_channels: [128, 256, 512]  # downsample `len(block_out_channels) - 1` times
+  block_out_channels: [128, 256, 512, 512]  # downsample `len(block_out_channels) - 1` times
   act_fn: 'silu'
-  latent_channels: 16
-  up_block_types: ['UpDecoderBlock2D', 'UpDecoderBlock2D', 'UpDecoderBlock2D']
+  latent_channels: 64
+  up_block_types: ['UpDecoderBlock2D', 'UpDecoderBlock2D', 'UpDecoderBlock2D', 'UpDecoderBlock2D']
   norm_num_groups: 32
   layers_per_block: 2
   out_channels: 1
