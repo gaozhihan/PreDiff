@@ -50,7 +50,7 @@ optim:
   early_stop_patience: 100
   save_top_k: 3
 logging:
-  logging_prefix: "SEVIR-LR_SD"
+  logging_prefix: "PreDiff"
   monitor_lr: true
   monitor_device: false
   track_grad_norm: -1
