@@ -500,7 +500,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
     @staticmethod
     def get_logging_config():
         cfg = OmegaConf.create()
-        cfg.logging_prefix = "SEVIR-LR_SD"
+        cfg.logging_prefix = "PreDiff"
         cfg.monitor_lr = True
         cfg.monitor_device = False
         cfg.track_grad_norm = -1
