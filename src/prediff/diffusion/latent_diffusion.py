@@ -590,12 +590,9 @@ class LatentDiffusion(pl.LightningModule):
             return model_mean, posterior_variance, posterior_log_variance
 
     def aligned_mean(self, zt, t, zc, y,
-                     orig_mean, orig_var, **kwargs):
-        # gamma = torch.sin(t / 1000.0 * np.pi).view(len(t), 1, 1, 1, 1)
-        # gamma = (t / 1000.0).view(len(t), 1, 1, 1, 1)
-        gamma = 1.0
+                     orig_mean, orig_log_var, **kwargs):
         align_gradient = self.alignment_fn(zt, t, zc=zc, y=y, **kwargs)
-        new_mean = orig_mean + gamma * orig_var * align_gradient
+        new_mean = orig_mean - (0.5 * orig_log_var).exp() * align_gradient
         return new_mean
 
     @torch.no_grad()
@@ -612,7 +609,7 @@ class LatentDiffusion(pl.LightningModule):
                 alignment_kwargs = {}
             model_mean, posterior_variance, model_log_variance, *_ = outputs
             model_mean = self.aligned_mean(zt=zt, t=t, zc=zc, y=y,
-                                           orig_mean=model_mean, orig_var=model_log_variance,
+                                           orig_mean=model_mean, orig_log_var=model_log_variance,
                                            **alignment_kwargs)
             outputs = (model_mean, posterior_variance, model_log_variance, *outputs[3:])
         if return_x0:
