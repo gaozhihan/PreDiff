@@ -47,7 +47,7 @@ def get_alignment_kwargs_avg_x(context_seq=None, target_seq=None, ):
     r"""
     Please customize this function for generating knowledge "avg_x_gt"
     that guides the inference.
-    E.g., this function uses 1.5 ground-truth future average intensity as "avg_x_gt" for demonstration.
+    E.g., this function uses 2.0 ground-truth future average intensity as "avg_x_gt" for demonstration.
 
     Parameters
     ----------
@@ -58,7 +58,7 @@ def get_alignment_kwargs_avg_x(context_seq=None, target_seq=None, ):
     -------
     alignment_kwargs:   Dict
     """
-    multiplier = 1.5
+    multiplier = 2.0
     batch_size = target_seq.shape[0]
     ret = torch.mean(target_seq.view(batch_size, -1),
                      dim=1, keepdim=True) * multiplier
@@ -192,6 +192,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
             alignment_ckpt_path = os.path.join(default_pretrained_alignment_dir, knowledge_alignment_cfg["model_ckpt_path"])
             self.alignment_obj = SEVIRAvgIntensityAlignment(
                 alignment_type=knowledge_alignment_cfg["alignment_type"],
+                guide_scale=knowledge_alignment_cfg["guide_scale"],
                 model_type=knowledge_alignment_cfg["model_type"],
                 model_args=knowledge_alignment_cfg["model_args"],
                 model_ckpt_path=alignment_ckpt_path, )
