@@ -65,8 +65,8 @@ trainer:
   num_sanity_val_steps: 2
 vis:
   train_example_data_idx_list: [0, ]
-  val_example_data_idx_list: [0, 32, 64, 96, 128]
-  test_example_data_idx_list: [0, 32, 64, 96, 128]
+  val_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
+  test_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
   eval_example_only: true
   eval_aligned: true
   eval_unaligned: true
