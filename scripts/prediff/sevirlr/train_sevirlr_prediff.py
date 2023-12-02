@@ -193,7 +193,6 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
             self.alignment_obj = SEVIRAvgIntensityAlignment(
                 alignment_type=knowledge_alignment_cfg["alignment_type"],
                 guide_scale=knowledge_alignment_cfg["guide_scale"],
-                timesteps=knowledge_alignment_cfg["timesteps"],
                 model_type=knowledge_alignment_cfg["model_type"],
                 model_args=knowledge_alignment_cfg["model_args"],
                 model_ckpt_path=alignment_ckpt_path, )
@@ -331,7 +330,6 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
         cfg.align = OmegaConf.create()
         cfg.align.alignment_type = None
         cfg.align.guide_scale = 1.0
-        cfg.align.timesteps = 1000
         cfg.align.model_type = "cuboid"
         cfg.align.model_ckpt_path = "tmp.pt"
         cfg.align.model_args = OmegaConf.create()

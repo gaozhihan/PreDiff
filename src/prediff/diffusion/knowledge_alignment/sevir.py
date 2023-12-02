@@ -9,7 +9,6 @@ class SEVIRAvgIntensityAlignment():
     def __init__(self,
                  alignment_type: str = "avg_x",
                  guide_scale: float = 1.0,
-                 timesteps: int = 1000,
                  model_type: str = "cuboid",
                  model_args: Dict[str, Any] = None,
                  model_ckpt_path: str = None,
@@ -20,8 +19,6 @@ class SEVIRAvgIntensityAlignment():
         ----------
         alignment_type: str
         guide_scale:    float
-        timesteps:  int
-            1000 by default.
         model_type: str
         model_args: Dict[str, Any]
         model_ckpt_path:    str
@@ -31,7 +28,6 @@ class SEVIRAvgIntensityAlignment():
         assert alignment_type in ["avg_x", ], f"alignment_type {alignment_type} is not supported"
         self.alignment_type = alignment_type
         self.guide_scale = guide_scale
-        self.timesteps = timesteps
         if model_args is None:
             model_args = {}
         if model_type == "cuboid":
@@ -84,8 +80,7 @@ class SEVIRAvgIntensityAlignment():
             raise NotImplementedError
         pred = pred.mean(dim=1)  # b t 1 -> b 1
         ret = torch.linalg.vector_norm(pred - target, ord=2)
-        shape = [zt.shape[0], ] + [1, ] * (len(zt.shape) - 1)
-        return ret * self.alignment_schedule(t=t, shape=shape)
+        return ret
 
     def get_mean_shift(self, zt, t, y=None, zc=None, **kwargs):
         r"""
@@ -107,19 +102,3 @@ class SEVIRAvgIntensityAlignment():
         grad_fn = get_sample_align_fn(self.alignment_fn)
         grad = grad_fn(zt, t, y=y, zc=zc, **kwargs)
         return self.guide_scale * grad
-
-    def alignment_schedule(self, t, shape=None):
-        r"""
-        Parameters
-        ----------
-        t:  torch.Tensor
-            timestamp
-        Returns
-        -------
-        ret:    float
-            alignment scale
-        """
-        ret = ((self.timesteps - t) / self.timesteps)
-        if shape is not None:
-            ret = ret.view(*shape)
-        return ret

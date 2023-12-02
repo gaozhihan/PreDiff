@@ -104,7 +104,6 @@ model:
     alignment_type: null
     # alignment_type: "avg_x"
     guide_scale: 50.0
-    timesteps: 1000
     model_type: "cuboid"
     model_args:
       input_shape: [6, 16, 16, 64]

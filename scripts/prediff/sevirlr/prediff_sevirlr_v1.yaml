@@ -76,7 +76,6 @@ vis:
 model:
   diffusion:
     data_shape: [6, 128, 128, 1]
-    timesteps: 1000
     beta_schedule: "linear"
     use_ema: true
     log_every_t: 100
