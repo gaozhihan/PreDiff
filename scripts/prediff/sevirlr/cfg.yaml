@@ -103,7 +103,7 @@ model:
   align:
     alignment_type: null
     # alignment_type: "avg_x"
-    guide_scale: 200.0
+    guide_scale: 50.0
     timesteps: 1000
     model_type: "cuboid"
     model_args:
