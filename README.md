@@ -18,13 +18,13 @@ In the past decade, the unprecedented increase in spatiotemporal Earth observati
 These models have shown promise for diverse Earth system forecasting tasks but either struggle with handling uncertainty or neglect domain-specific prior knowledge, resulting in averaging possible futures to blurred forecasts or generating physically implausible predictions. 
 To address these limitations, we propose a **two-stage pipeline for probabilistic spatiotemporal forecasting**: 
 1) We develop PreDiff, a conditional latent diffusion model capable of probabilistic forecasts. 
-2) We incorporate an explicit knowledge alignment mechanism to align forecasts with domain-specific physical constraints. This is achieved by estimating the deviation from imposed constraints at each denoising step and adjusting the transition distribution accordingly. 
+2) We incorporate an explicit **knowledge alignment** mechanism to align forecasts with domain-specific physical constraints. This is achieved by estimating the deviation from imposed constraints at each denoising step and adjusting the transition distribution accordingly. 
 
 We conduct empirical studies on two datasets: N-body MNIST, a synthetic dataset with chaotic behavior, and SEVIR, a real-world precipitation nowcasting dataset. 
 Specifically, we impose the law of conservation of energy in N-body MNIST and anticipated precipitation intensity in SEVIR. 
 Experiments demonstrate the effectiveness of PreDiff in handling uncertainty, incorporating domain-specific prior knowledge, and generating forecasts that exhibit high operational utility.  
 
-![teaser](figures/teaser_v1.png)
+![teaser](figures/method/teaser_v1.png)
 
 **Overview of PreDiff inference with knowledge alignment.**
 An observation sequence $y$ is encoded into a latent context $z_{\text{cond}}$ by the frame-wise encoder $\mathcal{E}$. 
@@ -32,6 +32,11 @@ The latent diffusion model $p_\theta(z_t|z_{t+1}, z_{\text{cond}})$, which is pa
 It takes the concatenation of the latent context $z_{\text{cond}}$ and the previous-step noisy latent future $z_{t+1}$ as input, and outputs $z_t$.
 The transition distribution of each step from $z_{t+1}$ to $z_t$ can be further refined via knowledge alignment, according to auxiliary prior knowledge.
 $z_0$ is decoded back to pixel space by the frame-wise decoder $\mathcal{D}$ to produce the final prediction $\hat{x}$.
+
+**Qualitative Analysis on SEVIR**
+![exp_vis](figures/exp/sevir_vis_both_v2.png)
+(a) PreDiff succeeds in keeping the correct patterns, which can be crucial for recognizing weather events.
+(b) PreDiff-KA (PreDiff with knowledge alignment) is flexible at highlighting possible extreme cases like rainstorms and droughts.
 
 ## Installation
 Create Conda environment
@@ -51,14 +56,8 @@ python -m pip install -e . --no-build-isolation
 ```
 
 ## Datasets
-[Storm EVent ImageRy (SEVIR) dataset](https://sevir.mit.edu/) is a spatiotemporally aligned dataset containing over 10,000 weather events.
-The NEXRAD Vertically Integrated Liquid (VIL) mosaics in SEVIR are adopted for benchmarking precipitation nowcasting, i.e., to predict the future VIL up to 60 minutes given 65 minutes context VIL. 
-The resolution is thus $13\times 384\times 384\rightarrow 12\times 384\times 384$.
-We adopted a downsampled version of SEVIR, denoted as SEVIR-LR, where the temporal downscaling factor is 2, and the spatial downscaling factor is 3 for each dimension. 
+We adopted a downsampled version of [Storm EVent ImageRy (SEVIR) dataset](https://sevir.mit.edu/), denoted as SEVIR-LR, where the temporal downscaling factor is 2, and the spatial downscaling factor is 3 for each dimension. 
 On SEVIR-LR dataset, PreDiff generates $6\times 128\times 128$ forecasts for a given $7\times 128\times 128$ context sequence.
-
-A visualization example of SEVIR VIL sequence:
-![Example_SEVIR_VIL_sequence](./figures/data/sevir/sevir_example.png)
 
 To download SEVIR-LR dataset directly from AWS S3, run:
 ```bash

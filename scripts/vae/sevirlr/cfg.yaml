@@ -56,7 +56,7 @@ trainer:
 vis:
   train_example_data_idx_list: [0, ]
   val_example_data_idx_list: [0, ]
-  test_example_data_idx_list: [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400]
+  test_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
   eval_example_only: false
   num_vis: 10
 model:

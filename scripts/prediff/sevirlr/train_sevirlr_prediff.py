@@ -532,6 +532,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
         cfg.num_samples_per_context = 1
         cfg.font_size = 20
         cfg.label_offset = (-0.5, 0.5)
+        cfg.label_avg_int = False
         return cfg
 
     def configure_optimizers(self):
@@ -1020,7 +1021,9 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 label=label_list,
                 interval_real_time=10,
                 plot_stride=1, fs=self.oc.vis.fs,
-                label_offset=self.oc.vis.label_offset,)
+                label_offset=self.oc.vis.label_offset,
+                label_avg_int=self.oc.vis.label_avg_int,
+            )
 
     def log_score_epoch_end(self, score_dict: Dict, prefix: str = "valid"):
         for metrics in self.oc.dataset.metrics_list:

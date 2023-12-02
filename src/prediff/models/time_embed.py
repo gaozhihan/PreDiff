@@ -80,6 +80,9 @@ class TimeEmbedResBlock(nn.Module):
         self.emb_channels = emb_channels
         self.out_channels = out_channels or channels
         self.use_conv = use_conv
+        if use_checkpoint:
+            warnings.warn("use_checkpoint is not supported yet.")
+            use_checkpoint = False
         self.use_checkpoint = use_checkpoint
         self.use_scale_shift_norm = use_scale_shift_norm
 
@@ -131,19 +134,16 @@ class TimeEmbedResBlock(nn.Module):
     def forward(self, x, emb=None):
         """
         Apply the block to a Tensor, conditioned on a timestep embedding.
-        :param x: an [N x C x ...] Tensor of features.
-        :param emb: an [N x emb_channels] Tensor of timestep embeddings.
-        :return: an [N x C x ...] Tensor of outputs.
-        """
-        # return checkpoint(
-        #     self._forward, (x, emb), self.parameters(), self.use_checkpoint
-        # )
-        if self.use_checkpoint:
-            return checkpoint.checkpoint(self._forward, x, emb)
-        else:
-            return self._forward(x, emb)
 
-    def _forward(self, x, emb=None):
+        Parameters
+        ----------
+        x: an [N x C x ...] Tensor of features.
+        emb: an [N x emb_channels] Tensor of timestep embeddings.
+
+        Returns
+        -------
+        out: an [N x C x ...] Tensor of outputs.
+        """
         if self.updown:
             in_rest, in_conv = self.in_layers[:-1], self.in_layers[-1]
             h = in_rest(x)

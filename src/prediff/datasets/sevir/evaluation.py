@@ -134,7 +134,7 @@ class SEVIRSkillScore(Metric):
         super().__init__()
         self.layout = layout
         self.parse_layout()
-        assert preprocess_type is "sevir" or preprocess_type.startswith("sevir_pool")
+        assert preprocess_type == "sevir" or preprocess_type.startswith("sevir_pool")
         self.preprocess_type = preprocess_type
         self.threshold_list = threshold_list
         self.metrics_list = metrics_list

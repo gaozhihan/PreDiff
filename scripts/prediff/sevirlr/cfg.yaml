@@ -65,14 +65,15 @@ trainer:
   num_sanity_val_steps: 2
 vis:
   train_example_data_idx_list: [0, ]
-  val_example_data_idx_list: [0, 32, 64, 96, 128]
-  test_example_data_idx_list: [0, 32, 64, 96, 128]
+  val_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
+  test_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
   eval_example_only: true
   eval_aligned: false
   eval_unaligned: true
   num_samples_per_context: 1
   fs: 20
   label_offset: [-0.5, 0.5]
+  label_avg_int: false
 model:
   diffusion:
     data_shape: [6, 128, 128, 1]
@@ -103,7 +104,7 @@ model:
   align:
     alignment_type: null
     # alignment_type: "avg_x"
-    guide_scale: 20.0
+    guide_scale: 50.0
     model_type: "cuboid"
     model_args:
       input_shape: [6, 16, 16, 64]
