@@ -4,8 +4,11 @@ import os
 import torch
 
 from ...utils.path import default_pretrained_metrics_dir
-
-_I3D_PRETRAINED_ID = '1mQK8KD8G6UWRa5t87SRMm5PVXtlpneJT'
+from ...utils.download import (
+    download_pretrained_weights,
+    pretrained_i3d_400_name,
+    pretrained_i3d_600_name,
+)
 
 
 def get_confirm_token(response):
@@ -25,7 +28,10 @@ def save_response_content(response, destination, chunk_size=8192):
     pbar.close()
 
 
-def download(id, fname, root=None):
+def download(id='1mQK8KD8G6UWRa5t87SRMm5PVXtlpneJT',
+             fname="i3d_pretrained_400.pt",
+             root=None):
+    # deprecated: google drive fails
     if root is None:
         root = default_pretrained_metrics_dir
     os.makedirs(root, exist_ok=True)
@@ -48,13 +54,19 @@ def download(id, fname, root=None):
 
 
 def load_i3d_pretrained(device=torch.device('cpu'), channels=400):
-    assert channels in [400, 600], f"Only 400 and 600 channels are supported, got {channels}."
+    if channels == 400:
+        filename = pretrained_i3d_400_name
+    elif channels == 600:
+        filename = pretrained_i3d_600_name
+    else:
+        raise ValueError(f"Only 400 and 600 channels are supported, got {channels}.")
     from .pytorch_i3d import InceptionI3d
     i3d = InceptionI3d(channels, in_channels=3).to(device)
-    filepath = download(_I3D_PRETRAINED_ID, f"i3d_pretrained_{channels}.pt")  # google drive link not work now
-    # filepath = os.path.join(default_pretrained_metrics_dir, f"i3d_pretrained_{channels}.pt")
     if not os.path.exists:
-        raise FileNotFoundError(f"Pretrained I3D model not found at {filepath}. Run `./scripts/evaluation/convert_tf_pretrained.py` to generate it.")
-    i3d.load_state_dict(torch.load(filepath, map_location=device))
+        download_pretrained_weights(ckpt_name=filename,
+                                    save_dir=default_pretrained_metrics_dir,
+                                    exist_ok=False)
+    i3d.load_state_dict(torch.load(os.path.join(filename, default_pretrained_metrics_dir),
+                                   map_location=device))
     i3d.eval()
     return i3d
