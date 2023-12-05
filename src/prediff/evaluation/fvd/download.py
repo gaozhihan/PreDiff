@@ -62,11 +62,11 @@ def load_i3d_pretrained(device=torch.device('cpu'), channels=400):
         raise ValueError(f"Only 400 and 600 channels are supported, got {channels}.")
     from .pytorch_i3d import InceptionI3d
     i3d = InceptionI3d(channels, in_channels=3).to(device)
-    if not os.path.exists:
+    filepath = os.path.join(default_pretrained_metrics_dir, filename)
+    if not os.path.exists(filepath):
         download_pretrained_weights(ckpt_name=filename,
                                     save_dir=default_pretrained_metrics_dir,
                                     exist_ok=False)
-    i3d.load_state_dict(torch.load(os.path.join(filename, default_pretrained_metrics_dir),
-                                   map_location=device))
+    i3d.load_state_dict(torch.load(filepath, map_location=device))
     i3d.eval()
     return i3d
