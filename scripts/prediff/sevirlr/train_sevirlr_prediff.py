@@ -239,7 +239,8 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 feature=self.oc.eval.fvd_features,
                 layout=self.layout,
                 reset_real_features=False,
-                normalize=False, )
+                normalize=False,
+                auto_t=True, )
         if self.oc.eval.eval_aligned:
             self.valid_aligned_mse = torchmetrics.MeanSquaredError()
             self.valid_aligned_mae = torchmetrics.MeanAbsoluteError()
@@ -264,7 +265,8 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 feature=self.oc.eval.fvd_features,
                 layout=self.layout,
                 reset_real_features=False,
-                normalize=False, )
+                normalize=False,
+                auto_t=True, )
 
         self.configure_save(cfg_file_path=oc_file)
 
@@ -937,8 +939,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                     self.test_aligned_mse(pred_seq, target_seq)
                     self.test_aligned_mae(pred_seq, target_seq)
                     self.test_aligned_score.update(pred_seq, target_seq)
-                    self.test_aligned_fvd.update(torch.repeat_interleave(pred_seq, repeats=2, dim=self.t_axis),
-                                                 real=False)
+                    self.test_aligned_fvd.update(pred_seq, real=False)
                     pred_seq_bchw = rearrange(pred_seq, "b t h w c -> (b t) c h w")
                     self.test_aligned_ssim(pred_seq_bchw, target_seq_bchw)
                 # no alignment
@@ -959,16 +960,13 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                     self.test_mse(pred_seq, target_seq)
                     self.test_mae(pred_seq, target_seq)
                     self.test_score.update(pred_seq, target_seq)
-                    self.test_fvd.update(torch.repeat_interleave(pred_seq, repeats=2, dim=self.t_axis),
-                                         real=False)
+                    self.test_fvd.update(pred_seq, real=False)
                     pred_seq_bchw = rearrange(pred_seq, "b t h w c -> (b t) c h w")
                     self.test_ssim(pred_seq_bchw, target_seq_bchw)
             if self.use_alignment and self.oc.eval.eval_aligned:
-                self.test_aligned_fvd.update(torch.repeat_interleave(target_seq, repeats=2, dim=self.t_axis),
-                                             real=True)
+                self.test_aligned_fvd.update(target_seq, real=True)
             if self.oc.eval.eval_unaligned:
-                self.test_fvd.update(torch.repeat_interleave(target_seq, repeats=2, dim=self.t_axis),
-                                     real=True)
+                self.test_fvd.update(target_seq, real=True)
             pred_seq_list = aligned_pred_seq_list + pred_seq_list
             pred_label_list = aligned_pred_label_list + pred_label_list
             self.save_vis_step_end(

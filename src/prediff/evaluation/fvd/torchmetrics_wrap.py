@@ -145,6 +145,8 @@ class FrechetVideoDistance(Metric):
     
     default_layout = "NTCHW"
     einops_default_layout = "N T C H W"
+    default_t_axis = 1
+    min_t = 9
 
     def __init__(
         self,
@@ -152,6 +154,7 @@ class FrechetVideoDistance(Metric):
         layout: str = "NTCHW",
         reset_real_features: bool = True,
         normalize: bool = False,
+        auto_t: bool = False,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
@@ -187,6 +190,8 @@ class FrechetVideoDistance(Metric):
             raise ValueError("Argument `normalize` expected to be a bool")
         self.normalize = normalize
 
+        self.auto_t = auto_t
+
         mx_nb_feets = (num_features, num_features)
         self.add_state("real_features_sum", torch.zeros(num_features).double(), dist_reduce_fx="sum")
         self.add_state("real_features_cov_sum", torch.zeros(mx_nb_feets).double(), dist_reduce_fx="sum")
@@ -216,6 +221,12 @@ class FrechetVideoDistance(Metric):
         real:   bool
         """
         videos = rearrange(videos, f"{self.einops_layout} -> {self.einops_default_layout}")
+        if videos.shape[1] < self.min_t:
+            if self.auto_t:
+                videos = torch.repeat_interleave(videos, repeats=2, dim=self.default_t_axis)
+            else:
+                raise ValueError(f"The temporal length of the input is smaller than the minimal requirement:"
+                                 f" videos.shape[1] = {videos.shape[1]} < {self.min_t}.")
         videos = videos / 255.0 if self.normalize else videos
         c = videos.shape[2]
         if c == 1:  # see discussion:https://github.com/google/compare_gan/issues/13 and reference implementation: https://github.com/google/compare_gan/blob/560697ee213f91048c6b4231ab79fcdd9bf20381/compare_gan/src/eval_gan_lib.py#L786-L791
