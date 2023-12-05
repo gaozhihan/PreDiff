@@ -1,0 +1,1 @@
+from .torchmetrics_wrap import FrechetVideoDistance
