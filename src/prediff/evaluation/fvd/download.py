@@ -51,8 +51,8 @@ def load_i3d_pretrained(device=torch.device('cpu'), channels=400):
     assert channels in [400, 600], f"Only 400 and 600 channels are supported, got {channels}."
     from .pytorch_i3d import InceptionI3d
     i3d = InceptionI3d(channels, in_channels=3).to(device)
-    # filepath = download(_I3D_PRETRAINED_ID, f"i3d_pretrained_{channels}.pt")  # google drive link not work now
-    filepath = os.path.join(default_pretrained_metrics_dir, f"i3d_pretrained_{channels}.pt")
+    filepath = download(_I3D_PRETRAINED_ID, f"i3d_pretrained_{channels}.pt")  # google drive link not work now
+    # filepath = os.path.join(default_pretrained_metrics_dir, f"i3d_pretrained_{channels}.pt")
     if not os.path.exists:
         raise FileNotFoundError(f"Pretrained I3D model not found at {filepath}. Run `./scripts/evaluation/convert_tf_pretrained.py` to generate it.")
     i3d.load_state_dict(torch.load(filepath, map_location=device))
