@@ -227,7 +227,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 eps=1e-4, )
             self.test_mse = torchmetrics.MeanSquaredError()
             self.test_mae = torchmetrics.MeanAbsoluteError()
-            self.test_ssim = torchmetrics.StructuralSimilarityIndexMeasure()
+            self.test_ssim = torchmetrics.image.StructuralSimilarityIndexMeasure()
             self.test_score = SEVIRSkillScore(
                 mode=self.oc.dataset.metrics_mode,
                 seq_len=self.oc.layout.out_len,
@@ -252,7 +252,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 eps=1e-4, )
             self.test_aligned_mse = torchmetrics.MeanSquaredError()
             self.test_aligned_mae = torchmetrics.MeanAbsoluteError()
-            self.test_aligned_ssim = torchmetrics.StructuralSimilarityIndexMeasure()
+            self.test_aligned_ssim = torchmetrics.image.StructuralSimilarityIndexMeasure()
             self.test_aligned_score = SEVIRSkillScore(
                 mode=self.oc.dataset.metrics_mode,
                 seq_len=self.oc.layout.out_len,
