@@ -63,7 +63,7 @@ trainer:
   precision: 32
   find_unused_parameters: false
   num_sanity_val_steps: 2
-vis:
+eval:
   train_example_data_idx_list: [0, ]
   val_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
   test_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
