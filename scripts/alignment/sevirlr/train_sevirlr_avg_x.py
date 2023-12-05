@@ -132,7 +132,7 @@ class SEVIRAlignmentPLModule(AlignmentPL):
         oc.optim = self.get_optim_config()
         oc.logging = self.get_logging_config()
         oc.trainer = self.get_trainer_config()
-        oc.vis = self.get_vis_config()
+        oc.eval = self.get_eval_config()
         oc.model = self.get_model_config()
         oc.dataset = self.get_dataset_config()
         if oc_from_file is not None:
@@ -310,7 +310,7 @@ class SEVIRAlignmentPLModule(AlignmentPL):
         return cfg
 
     @staticmethod
-    def get_vis_config():
+    def get_eval_config():
         cfg = OmegaConf.create()
         cfg.train_example_data_idx_list = []
         cfg.val_example_data_idx_list = []
