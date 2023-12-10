@@ -17,10 +17,12 @@ from lightning.pytorch.utilities import grad_norm
 from omegaconf import OmegaConf
 import os
 import argparse
+from einops import rearrange
 
 from prediff.datasets.sevir.sevir_torch_wrap import SEVIRLightningDataModule
 from prediff.datasets.sevir.visualization import vis_sevir_seq
 from prediff.datasets.sevir.evaluation import SEVIRSkillScore
+from prediff.evaluation.fvd import FrechetVideoDistance
 from prediff.utils.pl_checkpoint import pl_load
 from prediff.utils.download import (
     download_pretrained_weights,
@@ -208,12 +210,12 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
         self.save_dir = save_dir
         self.logging_prefix = oc.logging.logging_prefix
         # visualization
-        self.train_example_data_idx_list = list(oc.vis.train_example_data_idx_list)
-        self.val_example_data_idx_list = list(oc.vis.val_example_data_idx_list)
-        self.test_example_data_idx_list = list(oc.vis.test_example_data_idx_list)
-        self.eval_example_only = oc.vis.eval_example_only
+        self.train_example_data_idx_list = list(oc.eval.train_example_data_idx_list)
+        self.val_example_data_idx_list = list(oc.eval.val_example_data_idx_list)
+        self.test_example_data_idx_list = list(oc.eval.test_example_data_idx_list)
+        self.eval_example_only = oc.eval.eval_example_only
 
-        if self.oc.vis.eval_unaligned:
+        if self.oc.eval.eval_unaligned:
             self.valid_mse = torchmetrics.MeanSquaredError()
             self.valid_mae = torchmetrics.MeanAbsoluteError()
             self.valid_score = SEVIRSkillScore(
@@ -225,6 +227,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 eps=1e-4, )
             self.test_mse = torchmetrics.MeanSquaredError()
             self.test_mae = torchmetrics.MeanAbsoluteError()
+            self.test_ssim = torchmetrics.image.StructuralSimilarityIndexMeasure()
             self.test_score = SEVIRSkillScore(
                 mode=self.oc.dataset.metrics_mode,
                 seq_len=self.oc.layout.out_len,
@@ -232,7 +235,13 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 threshold_list=self.oc.dataset.threshold_list,
                 metrics_list=self.oc.dataset.metrics_list,
                 eps=1e-4, )
-        if self.oc.vis.eval_aligned:
+            self.test_fvd = FrechetVideoDistance(
+                feature=self.oc.eval.fvd_features,
+                layout=self.layout,
+                reset_real_features=False,
+                normalize=False,
+                auto_t=True, )
+        if self.oc.eval.eval_aligned:
             self.valid_aligned_mse = torchmetrics.MeanSquaredError()
             self.valid_aligned_mae = torchmetrics.MeanAbsoluteError()
             self.valid_aligned_score = SEVIRSkillScore(
@@ -244,6 +253,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 eps=1e-4, )
             self.test_aligned_mse = torchmetrics.MeanSquaredError()
             self.test_aligned_mae = torchmetrics.MeanAbsoluteError()
+            self.test_aligned_ssim = torchmetrics.image.StructuralSimilarityIndexMeasure()
             self.test_aligned_score = SEVIRSkillScore(
                 mode=self.oc.dataset.metrics_mode,
                 seq_len=self.oc.layout.out_len,
@@ -251,6 +261,12 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 threshold_list=self.oc.dataset.threshold_list,
                 metrics_list=self.oc.dataset.metrics_list,
                 eps=1e-4, )
+            self.test_aligned_fvd = FrechetVideoDistance(
+                feature=self.oc.eval.fvd_features,
+                layout=self.layout,
+                reset_real_features=False,
+                normalize=False,
+                auto_t=True, )
 
         self.configure_save(cfg_file_path=oc_file)
 
@@ -273,7 +289,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
         oc.optim = self.get_optim_config()
         oc.logging = self.get_logging_config()
         oc.trainer = self.get_trainer_config()
-        oc.vis = self.get_vis_config()
+        oc.eval = self.get_eval_config()
         oc.model = self.get_model_config()
         oc.dataset = self.get_dataset_config()
         if oc_from_file is not None:
@@ -296,11 +312,11 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
     def get_model_config(cls):
         cfg = OmegaConf.create()
         layout_cfg = cls.get_layout_config()
-        
+
         cfg.diffusion = OmegaConf.create()
-        cfg.diffusion.data_shape = (layout_cfg.out_len, 
+        cfg.diffusion.data_shape = (layout_cfg.out_len,
                                     layout_cfg.img_height,
-                                    layout_cfg.img_width, 
+                                    layout_cfg.img_width,
                                     layout_cfg.data_channels)
         cfg.diffusion.timesteps = 1000
         cfg.diffusion.beta_schedule = "linear"
@@ -431,7 +447,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
         cfg.latent_model.time_embed_use_scale_shift_norm = False
         cfg.latent_model.time_embed_dropout = 0.0
         cfg.latent_model.unet_res_connect = True
-        
+
         cfg.vae = OmegaConf.create()
         cfg.vae.data_channels = layout_cfg.data_channels
         # from stable-diffusion-v1-5
@@ -521,7 +537,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
         return cfg
 
     @staticmethod
-    def get_vis_config():
+    def get_eval_config():
         cfg = OmegaConf.create()
         cfg.train_example_data_idx_list = [0, ]
         cfg.val_example_data_idx_list = [0, ]
@@ -533,6 +549,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
         cfg.font_size = 20
         cfg.label_offset = (-0.5, 0.5)
         cfg.label_avg_int = False
+        cfg.fvd_features = 400
         return cfg
 
     def configure_optimizers(self):
@@ -755,28 +772,30 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 aligned_pred_label_list = []
                 pred_seq_list = []
                 pred_label_list = []
-                for i in range(self.oc.vis.num_samples_per_context):
+                for i in range(self.oc.eval.num_samples_per_context):
                     # aligned sampling
-                    if self.use_alignment and self.oc.vis.eval_aligned:
+                    if self.use_alignment and self.oc.eval.eval_aligned:
                         if self.alignment_type == "avg_x":
                             alignment_kwargs = get_alignment_kwargs_avg_x(context_seq=context_seq,
                                                                           target_seq=target_seq)
                         else:
                             raise NotImplementedError
-                        pred_seq = self.sample(cond=cond,
-                                               batch_size=micro_batch_size,
-                                               return_intermediates=False,
-                                               use_alignment=True,
-                                               alignment_kwargs=alignment_kwargs,
-                                               verbose=False, ).contiguous()
+                        pred_seq = self.sample(
+                            cond=cond,
+                            batch_size=micro_batch_size,
+                            return_intermediates=False,
+                            use_alignment=True,
+                            alignment_kwargs=alignment_kwargs,
+                            verbose=False, ).contiguous()
                         aligned_pred_seq_list.append(pred_seq[0].detach().float().cpu().numpy())
                         aligned_pred_label_list.append(f"{self.oc.logging.logging_prefix}_aligned_pred_{i}")
                     # no alignment
-                    if self.oc.vis.eval_unaligned:
-                        pred_seq = self.sample(cond=cond,
-                                               batch_size=micro_batch_size,
-                                               return_intermediates=False,
-                                               verbose=False, ).contiguous()
+                    if self.oc.eval.eval_unaligned:
+                        pred_seq = self.sample(
+                            cond=cond,
+                            batch_size=micro_batch_size,
+                            return_intermediates=False,
+                            verbose=False, ).contiguous()
                         pred_seq_list.append(pred_seq[0].detach().float().cpu().numpy())
                         pred_label_list.append(f"{self.oc.logging.logging_prefix}_pred_{i}")
                 pred_seq_list = aligned_pred_seq_list + pred_seq_list
@@ -787,7 +806,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                     target_seq=target_seq[0].detach().float().cpu().numpy(),
                     pred_seq=pred_seq_list,
                     pred_label=pred_label_list,
-                    mode="train",)
+                    mode="train", )
         return loss
 
     @torch.no_grad()
@@ -807,20 +826,21 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
             aligned_pred_label_list = []
             pred_seq_list = []
             pred_label_list = []
-            for i in range(self.oc.vis.num_samples_per_context):
+            for i in range(self.oc.eval.num_samples_per_context):
                 # aligned sampling
-                if self.use_alignment and self.oc.vis.eval_aligned:
+                if self.use_alignment and self.oc.eval.eval_aligned:
                     if self.alignment_type == "avg_x":
                         alignment_kwargs = get_alignment_kwargs_avg_x(context_seq=context_seq,
                                                                       target_seq=target_seq)
                     else:
                         raise NotImplementedError
-                    pred_seq = self.sample(cond=cond,
-                                           batch_size=micro_batch_size,
-                                           return_intermediates=False,
-                                           use_alignment=True,
-                                           alignment_kwargs=alignment_kwargs,
-                                           verbose=False, ).contiguous()
+                    pred_seq = self.sample(
+                        cond=cond,
+                        batch_size=micro_batch_size,
+                        return_intermediates=False,
+                        use_alignment=True,
+                        alignment_kwargs=alignment_kwargs,
+                        verbose=False, ).contiguous()
                     aligned_pred_seq_list.append(pred_seq[0].detach().float().cpu().numpy())
                     aligned_pred_label_list.append(f"{self.oc.logging.logging_prefix}_aligned_pred_{i}")
                     if pred_seq.dtype is not torch.float:
@@ -829,11 +849,12 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                     self.valid_aligned_mae(pred_seq, target_seq)
                     self.valid_aligned_score.update(pred_seq, target_seq)
                 # no alignment
-                if self.oc.vis.eval_unaligned:
-                    pred_seq = self.sample(cond=cond,
-                                           batch_size=micro_batch_size,
-                                           return_intermediates=False,
-                                           verbose=False, ).contiguous()
+                if self.oc.eval.eval_unaligned:
+                    pred_seq = self.sample(
+                        cond=cond,
+                        batch_size=micro_batch_size,
+                        return_intermediates=False,
+                        verbose=False, ).contiguous()
                     pred_seq_list.append(pred_seq[0].detach().float().cpu().numpy())
                     pred_label_list.append(f"{self.oc.logging.logging_prefix}_pred_{i}")
                     if pred_seq.dtype is not torch.float:
@@ -853,7 +874,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 suffix=f"_rank{self.local_rank}", )
 
     def on_validation_epoch_end(self):
-        if self.oc.vis.eval_unaligned:
+        if self.oc.eval.eval_unaligned:
             valid_mse = self.valid_mse.compute()
             valid_mae = self.valid_mae.compute()
             valid_score = self.valid_score.compute()
@@ -866,13 +887,14 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
             self.valid_mse.reset()
             self.valid_mae.reset()
             self.valid_score.reset()
-        if self.oc.vis.eval_aligned:
+        if self.oc.eval.eval_aligned:
             valid_mse = self.valid_aligned_mse.compute()
             valid_mae = self.valid_aligned_mae.compute()
             valid_score = self.valid_aligned_score.compute()
             valid_loss = -valid_score["avg"]["csi"]
 
-            self.log('valid_aligned_loss_epoch', valid_loss, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
+            self.log('valid_aligned_loss_epoch', valid_loss, prog_bar=True, on_step=False, on_epoch=True,
+                     sync_dist=True)
             self.log('valid_aligned_mse_epoch', valid_mse, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
             self.log('valid_aligned_mae_epoch', valid_mae, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
             self.log_score_epoch_end(score_dict=valid_score, prefix="valid_aligned")
@@ -886,26 +908,29 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
         if not self.eval_example_only or data_idx in self.val_example_data_idx_list:
             target_seq, cond, context_seq = \
                 self.get_input(batch, return_verbose=True)
+            target_seq_bchw = rearrange(target_seq, "b t h w c -> (b t) c h w")
             aligned_pred_seq_list = []
             aligned_pred_label_list = []
             pred_seq_list = []
             pred_label_list = []
-            for i in range(self.oc.vis.num_samples_per_context):
+            for i in range(self.oc.eval.num_samples_per_context):
                 # aligned sampling
-                if self.use_alignment and self.oc.vis.eval_aligned:
+                if self.use_alignment and self.oc.eval.eval_aligned:
                     if self.alignment_type == "avg_x":
                         alignment_kwargs = get_alignment_kwargs_avg_x(context_seq=context_seq,
                                                                       target_seq=target_seq)
                     else:
                         raise NotImplementedError
-                    pred_seq = self.sample(cond=cond,
-                                           batch_size=micro_batch_size,
-                                           return_intermediates=False,
-                                           use_alignment=True,
-                                           alignment_kwargs=alignment_kwargs,
-                                           verbose=False, ).contiguous()
+                    pred_seq = self.sample(
+                        cond=cond,
+                        batch_size=micro_batch_size,
+                        return_intermediates=False,
+                        use_alignment=True,
+                        alignment_kwargs=alignment_kwargs,
+                        verbose=False, ).contiguous()
                     if self.oc.logging.save_npy:
-                        npy_path = os.path.join(self.npy_save_dir, f"batch{batch_idx}_rank{self.local_rank}_sample{i}_aligned.npy")
+                        npy_path = os.path.join(self.npy_save_dir,
+                                                f"batch{batch_idx}_rank{self.local_rank}_sample{i}_aligned.npy")
                         np.save(npy_path, pred_seq.detach().float().cpu().numpy())
                     aligned_pred_seq_list.append(pred_seq[0].detach().float().cpu().numpy())
                     aligned_pred_label_list.append(f"{self.oc.logging.logging_prefix}_aligned_pred_{i}")
@@ -914,14 +939,19 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                     self.test_aligned_mse(pred_seq, target_seq)
                     self.test_aligned_mae(pred_seq, target_seq)
                     self.test_aligned_score.update(pred_seq, target_seq)
+                    self.test_aligned_fvd.update(pred_seq, real=False)
+                    pred_seq_bchw = rearrange(pred_seq, "b t h w c -> (b t) c h w")
+                    self.test_aligned_ssim(pred_seq_bchw, target_seq_bchw)
                 # no alignment
-                if self.oc.vis.eval_unaligned:
-                    pred_seq = self.sample(cond=cond,
-                                           batch_size=micro_batch_size,
-                                           return_intermediates=False,
-                                           verbose=False, ).contiguous()
+                if self.oc.eval.eval_unaligned:
+                    pred_seq = self.sample(
+                        cond=cond,
+                        batch_size=micro_batch_size,
+                        return_intermediates=False,
+                        verbose=False, ).contiguous()
                     if self.oc.logging.save_npy:
-                        npy_path = os.path.join(self.npy_save_dir, f"batch{batch_idx}_rank{self.local_rank}_sample{i}.npy")
+                        npy_path = os.path.join(self.npy_save_dir,
+                                                f"batch{batch_idx}_rank{self.local_rank}_sample{i}.npy")
                         np.save(npy_path, pred_seq.detach().float().cpu().numpy())
                     pred_seq_list.append(pred_seq[0].detach().float().cpu().numpy())
                     pred_label_list.append(f"{self.oc.logging.logging_prefix}_pred_{i}")
@@ -930,6 +960,13 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                     self.test_mse(pred_seq, target_seq)
                     self.test_mae(pred_seq, target_seq)
                     self.test_score.update(pred_seq, target_seq)
+                    self.test_fvd.update(pred_seq, real=False)
+                    pred_seq_bchw = rearrange(pred_seq, "b t h w c -> (b t) c h w")
+                    self.test_ssim(pred_seq_bchw, target_seq_bchw)
+            if self.use_alignment and self.oc.eval.eval_aligned:
+                self.test_aligned_fvd.update(target_seq, real=True)
+            if self.oc.eval.eval_unaligned:
+                self.test_fvd.update(target_seq, real=True)
             pred_seq_list = aligned_pred_seq_list + pred_seq_list
             pred_label_list = aligned_pred_label_list + pred_label_list
             self.save_vis_step_end(
@@ -942,28 +979,40 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 suffix=f"_rank{self.local_rank}", )
 
     def on_test_epoch_end(self):
-        if self.oc.vis.eval_unaligned:
+        if self.oc.eval.eval_unaligned:
             test_mse = self.test_mse.compute()
             test_mae = self.test_mae.compute()
+            test_ssim = self.test_ssim.compute()
             test_score = self.test_score.compute()
+            test_fvd = self.test_fvd.compute()
 
             self.log('test_mse_epoch', test_mse, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
             self.log('test_mae_epoch', test_mae, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
+            self.log('test_ssim_epoch', test_ssim, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
             self.log_score_epoch_end(score_dict=test_score, prefix="test")
+            self.log('test_fvd_epoch', test_fvd, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
             self.test_mse.reset()
             self.test_mae.reset()
+            self.test_ssim.reset()
             self.test_score.reset()
-        if self.oc.vis.eval_aligned:
+            self.test_fvd.reset()
+        if self.oc.eval.eval_aligned:
             test_mse = self.test_aligned_mse.compute()
             test_mae = self.test_aligned_mae.compute()
+            test_ssim = self.test_aligned_ssim.compute()
             test_score = self.test_aligned_score.compute()
+            test_fvd = self.test_aligned_fvd.compute()
 
             self.log('test_aligned_mse_epoch', test_mse, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
             self.log('test_aligned_mae_epoch', test_mae, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
+            self.log('test_aligned_ssim_epoch', test_ssim, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
             self.log_score_epoch_end(score_dict=test_score, prefix="test_aligned")
+            self.log('test_aligned_fvd_epoch', test_fvd, prog_bar=True, on_step=False, on_epoch=True, sync_dist=True)
             self.test_aligned_mse.reset()
             self.test_aligned_mae.reset()
+            self.test_aligned_ssim.reset()
             self.test_aligned_score.reset()
+            self.test_aligned_fvd.reset()
 
     def save_vis_step_end(
             self,
@@ -975,7 +1024,7 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
             label_mode: str = "name",
             mode: str = "train",
             prefix: str = "",
-            suffix: str = "",):
+            suffix: str = "", ):
         r"""
         Parameters
         ----------
@@ -1020,10 +1069,9 @@ class PreDiffSEVIRPLModule(LatentDiffusion):
                 seq=seq_list,
                 label=label_list,
                 interval_real_time=10,
-                plot_stride=1, fs=self.oc.vis.fs,
-                label_offset=self.oc.vis.label_offset,
-                label_avg_int=self.oc.vis.label_avg_int,
-            )
+                plot_stride=1, fs=self.oc.eval.fs,
+                label_offset=self.oc.eval.label_offset,
+                label_avg_int=self.oc.eval.label_avg_int, )
 
     def log_score_epoch_end(self, score_dict: Dict, prefix: str = "valid"):
         for metrics in self.oc.dataset.metrics_list:
@@ -1117,7 +1165,7 @@ def main():
     )
     trainer = Trainer(**trainer_kwargs)
     if args.pretrained:
-        # load Earthforer-UNet
+        # load Earthformer-UNet
         earthformerunet_ckpt_path = os.path.join(default_pretrained_earthformerunet_dir,
                                                  pretrained_sevirlr_earthformerunet_name)
         state_dict = torch.load(earthformerunet_ckpt_path,
@@ -1139,7 +1187,7 @@ def main():
                     model_state_dict[key.replace(model_kay, "")] = val
             pl_module.torch_nn_module.load_state_dict(model_state_dict)
         trainer.test(model=pl_module,
-                     datamodule=dm,)
+                     datamodule=dm, )
     else:
         if args.ckpt_name is not None:
             ckpt_path = os.path.join(pl_module.save_dir, "checkpoints", args.ckpt_name)

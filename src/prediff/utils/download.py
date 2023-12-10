@@ -6,10 +6,15 @@ pretrained_sevirlr_vae_name = "pretrained_sevirlr_vae_8x8x64_v1.pt"
 pretrained_sevirlr_earthformerunet_name = "pretrained_sevirlr_earthformerunet_v1.pt"
 pretrained_sevirlr_alignment_name = "pretrained_sevirlr_alignment_avg_x_cuboid_v1.pt"
 
+pretrained_i3d_400_name = "pretrained_i3d_400.pt"
+pretrained_i3d_600_name = "pretrained_i3d_600.pt"
+
 file_id_dict = {
     pretrained_sevirlr_vae_name: "10OicEQuOPzSKDp5WYF3zDHsL-COywe98",
     pretrained_sevirlr_earthformerunet_name: "1cVB0Sm2V4OMTLxNNEXlb2__ONqSAjUDJ",
     pretrained_sevirlr_alignment_name: "1CzrzNVDVTyc8ivnWqEOiJnrN6wraY6fy",
+    pretrained_i3d_400_name: "1UwfpQEIi1jJqGmTmRWcIClEpXF3jKwOq",
+    pretrained_i3d_600_name: "1wiueaTRfi0DqJUUaIF3l_ze8OMNF5NIQ",
 }
 
 

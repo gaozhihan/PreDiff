@@ -62,7 +62,7 @@ trainer:
   precision: 32
   find_unused_parameters: false
   num_sanity_val_steps: 2
-vis:
+eval:
   train_example_data_idx_list: []
   val_example_data_idx_list: []
   test_example_data_idx_list: []

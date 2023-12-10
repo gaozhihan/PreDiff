@@ -10,7 +10,7 @@ By [Zhihan Gao](https://scholar.google.com/citations?user=P6ACUAUAAAAJ),
 [Mu Li](https://github.com/mli), 
 [Yuyang Bernie Wang](http://web.mit.edu/~ywang02/www/).
 
-This repo is the official implementation of ["PreDiff: Precipitation Nowcasting with Latent Diffusion Models"](https://arxiv.org/abs/2307.10422) that will appear in NeurIPS 2023.
+This repo contains the official implementation of the ["PreDiff: Precipitation Nowcasting with Latent Diffusion Models"](https://openreview.net/pdf?id=Gh67ZZ6zkS) paper accepted to NeurIPS 2023.
 
 ## Introduction
 Earth system forecasting has traditionally relied on complex physical models that are computationally expensive and require significant domain expertise. 
@@ -118,8 +118,8 @@ Find detailed instructions in how to train the models or running inference with 
 ```
 @inproceedings{gao2023prediff,
   title={PreDiff: Precipitation Nowcasting with Latent Diffusion Models},
-  author={Gao, Zhihan and Shi, Xingjian and Han, Boran and Wang, Hao and Jin, Xiaoyong and Robinson, Danielle and Zhu, Yi and Li, Mu and Wang, Yuyang},
-  booktitle={NeurIPS},
+  author={Gao, Zhihan and Shi, Xingjian and Han, Boran and Wang, Hao and Jin, Xiaoyong and Maddix, Danielle C and Zhu, Yi and Li, Mu and Wang, Bernie},
+  booktitle={Thirty-seventh Conference on Neural Information Processing Systems},
   year={2023}
 }
 ```

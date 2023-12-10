@@ -93,10 +93,10 @@ class VAESEVIRPLModule(pl.LightningModule):
         self.save_dir = save_dir
         self.logging_prefix = oc.logging.logging_prefix
         # visualization
-        self.train_example_data_idx_list = list(oc.vis.train_example_data_idx_list)
-        self.val_example_data_idx_list = list(oc.vis.val_example_data_idx_list)
-        self.test_example_data_idx_list = list(oc.vis.test_example_data_idx_list)
-        self.eval_example_only = oc.vis.eval_example_only
+        self.train_example_data_idx_list = list(oc.eval.train_example_data_idx_list)
+        self.val_example_data_idx_list = list(oc.eval.val_example_data_idx_list)
+        self.test_example_data_idx_list = list(oc.eval.test_example_data_idx_list)
+        self.eval_example_only = oc.eval.eval_example_only
 
         self.valid_mse = torchmetrics.MeanSquaredError()
         self.valid_mae = torchmetrics.MeanAbsoluteError()
@@ -124,7 +124,7 @@ class VAESEVIRPLModule(pl.LightningModule):
         oc.optim = self.get_optim_config()
         oc.logging = self.get_logging_config()
         oc.trainer = self.get_trainer_config()
-        oc.vis = self.get_vis_config()
+        oc.eval = self.get_eval_config()
         oc.model = self.get_model_config()
         oc.dataset = self.get_dataset_config()
         if oc_from_file is not None:
@@ -236,7 +236,7 @@ class VAESEVIRPLModule(pl.LightningModule):
         return cfg
 
     @staticmethod
-    def get_vis_config():
+    def get_eval_config():
         cfg = OmegaConf.create()
         cfg.train_example_data_idx_list = [0, ]
         cfg.val_example_data_idx_list = [0, ]
@@ -561,7 +561,7 @@ class VAESEVIRPLModule(pl.LightningModule):
                 raise ValueError(f"Wrong mode {mode}! Must be in ['train', 'val', 'test'].")
             if data_idx in example_data_idx_list:
                 save_name = f"{prefix}{mode}_epoch_{self.current_epoch}_data_{data_idx}.png"
-                num_vis = min(target.shape[0], self.oc.vis.num_vis)
+                num_vis = min(target.shape[0], self.oc.eval.num_vis)
                 seq_list = [
                     target[:num_vis].squeeze(1),
                     pred[:num_vis].squeeze(1),

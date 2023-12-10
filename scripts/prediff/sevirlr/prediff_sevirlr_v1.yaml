@@ -63,7 +63,7 @@ trainer:
   precision: 32
   find_unused_parameters: false
   num_sanity_val_steps: 2
-vis:
+eval:
   train_example_data_idx_list: [0, ]
   val_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
   test_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
@@ -74,6 +74,7 @@ vis:
   fs: 20
   label_offset: [-0.5, 0.5]
   label_avg_int: false
+  fvd_features: 400
 model:
   diffusion:
     data_shape: [6, 128, 128, 1]
