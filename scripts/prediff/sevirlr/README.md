@@ -30,8 +30,8 @@ MASTER_ADDR=localhost MASTER_PORT=10001 WORLD_SIZE=16 NODE_RANK=0 python ./scrip
 # On the 1st node
 MASTER_ADDR=$master_ip MASTER_PORT=10001 WORLD_SIZE=16 NODE_RANK=1 python ./scripts/prediff/sevirlr/train_sevirlr_prediff.py --nodes 2 --gpus 2 --cfg ./scripts/prediff/sevirlr/train_sevirlr_prediff/cfg.yaml --save tmp_sevirlr_prediff
 ```
-Run the following command to upload and share experiment records via [tensorboard dev](https://tensorboard.dev/)
+Run the tensorboard command to visualize the experiment records
 ```bash
 cd ROOT_DIR/PreDiff
-tensorboard dev upload --logdir ./experiments/tmp_sevirlr_prediff/lightning_logs --name 'tmp_sevirlr_prediff'
+tensorboard --logdir ./experiments/tmp_sevirlr_prediff/lightning_logs
 ```
