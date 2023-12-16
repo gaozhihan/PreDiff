@@ -11,8 +11,8 @@ Or run the following command to directly load pretrained checkpoint for test.
 ```bash
 MASTER_ADDR=localhost MASTER_PORT=10001 python ./scripts/vae/sevirlr/train_vae_sevirlr.py --gpus 2 --pretrained --save tmp_vae_sevirlr
 ```
-Run the tensorboard command to upload experiment records
+Run the tensorboard command to visualize the experiment records
 ```bash
 cd ROOT_DIR/PreDiff
-tensorboard dev upload --logdir ./experiments/tmp_vae_sevirlr/lightning_logs --name 'tmp_vae_sevirlr'
+tensorboard --logdir ./experiments/tmp_vae_sevirlr/lightning_logs
 ```
