@@ -1,0 +1,78 @@
+dataset:
+  dataset_name: "sevirlr"
+  img_height: 128
+  img_width: 128
+  in_len: 0
+  out_len: 1
+  seq_len: 1
+  plot_stride: 1
+  interval_real_time: 10
+  sample_mode: "sequent"
+  stride: 1
+  layout: "NTHWC"
+  start_date: null
+  train_test_split_date: [2019, 6, 1]
+  end_date: null
+  val_ratio: 0.1
+  metrics_mode: "0"
+  metrics_list: ['csi', 'pod', 'sucr', 'bias']
+  threshold_list: [16, 74, 133, 160, 181, 219]
+  aug_mode: "1"
+layout:
+  layout: "NHWC"
+optim:
+  total_batch_size: 512
+  micro_batch_size: 16
+  float32_matmul_precision: "high"
+  seed: 0
+  method: "adam"
+  lr: 5e-6
+  betas: [0.5, 0.9]
+  gradient_clip_val: 1.0
+  max_epochs: 500
+  # scheduler
+  warmup_percentage: 0.1
+  lr_scheduler_mode: "cosine"
+  min_lr_ratio: 1.0e-3
+  warmup_min_lr_ratio: 0.1
+  # early stopping
+  monitor: "val/total_loss"
+  early_stop: false
+  early_stop_mode: "min"
+  early_stop_patience: 5
+  save_top_k: 5
+logging:
+  logging_prefix: "VAE_GAN_SEVIR-LR"
+  monitor_lr: true
+  monitor_device: false
+  track_grad_norm: -1
+  use_wandb: false
+trainer:
+  check_val_every_n_epoch: 5
+  log_step_ratio: 0.001
+  precision: 32
+  find_unused_parameters: True
+  num_sanity_val_steps: 2
+eval:
+  train_example_data_idx_list: [0, ]
+  val_example_data_idx_list: [0, ]
+  test_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
+  eval_example_only: false
+  num_vis: 10
+model:
+  data_channels: 1
+  down_block_types: ['DownEncoderBlock2D', 'DownEncoderBlock2D', 'DownEncoderBlock2D', 'DownEncoderBlock2D']
+  in_channels: 1
+  block_out_channels: [128, 256, 512, 512]  # downsample `len(block_out_channels) - 1` times
+  act_fn: 'silu'
+  latent_channels: 64
+  up_block_types: ['UpDecoderBlock2D', 'UpDecoderBlock2D', 'UpDecoderBlock2D', 'UpDecoderBlock2D']
+  norm_num_groups: 32
+  layers_per_block: 2
+  out_channels: 1
+  loss:
+    disc_start: 50001
+    kl_weight: 1e-6
+    disc_weight: 0.5
+    perceptual_weight: 0.0  # SEVIR does not have RGB channels
+    disc_in_channels: 1

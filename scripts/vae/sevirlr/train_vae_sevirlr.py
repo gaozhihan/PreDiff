@@ -23,6 +23,10 @@ from prediff.datasets.sevir.visualization import vis_sevir_seq
 from prediff.taming import AutoencoderKL, LPIPSWithDiscriminator
 from prediff.utils.optim import warmup_lambda
 from prediff.utils.pl_checkpoint import pl_load
+from prediff.utils.download import (
+    download_pretrained_weights,
+    pretrained_sevirlr_vae_name)
+from prediff.utils.path import default_pretrained_vae_dir
 from prediff.utils.path import default_exps_dir
 
 
@@ -593,12 +597,19 @@ def get_parser():
     parser.add_argument('--test', action='store_true')
     parser.add_argument('--ckpt_name', default=None, type=str,
                         help='The model checkpoint trained on SEVIR-LR.')
+    parser.add_argument('--pretrained', action='store_true',
+                        help='Load pretrained checkpoints for test.')
     return parser
 
 
 def main():
     parser = get_parser()
     args = parser.parse_args()
+    if args.pretrained:
+        args.cfg = os.path.abspath(os.path.join(os.path.dirname(__file__), "vae_sevirlr_v1.yaml"))
+        download_pretrained_weights(ckpt_name=pretrained_sevirlr_vae_name,
+                                    save_dir=default_pretrained_vae_dir,
+                                    exist_ok=False)
     if args.cfg is not None:
         oc_from_file = OmegaConf.load(open(args.cfg, "r"))
         dataset_cfg = OmegaConf.to_object(oc_from_file.dataset)
@@ -635,7 +646,15 @@ def main():
         oc_file=args.cfg)
     trainer_kwargs = pl_module.set_trainer_kwargs(devices=args.gpus)
     trainer = Trainer(**trainer_kwargs)
-    if args.test:
+    if args.pretrained:
+        vae_ckpt_path = os.path.join(default_pretrained_vae_dir,
+                                     pretrained_sevirlr_vae_name)
+        state_dict = torch.load(vae_ckpt_path,
+                                map_location=torch.device("cpu"))
+        pl_module.torch_nn_module.load_state_dict(state_dict=state_dict)
+        trainer.test(model=pl_module,
+                     datamodule=dm)
+    elif args.test:
         if args.ckpt_name is not None:
             ckpt_path = os.path.join(pl_module.save_dir, "checkpoints", args.ckpt_name)
         else:
