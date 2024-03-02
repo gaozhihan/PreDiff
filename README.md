@@ -105,13 +105,15 @@ In practice, the training of the knowledge alignment network is independent of t
 Therefore, steps 2 and 3 can be performed in parallel. 
 To achieve this, specify the path to the PyTorch state_dict of the VAE trained in step 1 by setting `vae.pretrained_ckpt_path` in the corresponding config files.  
 
-Find detailed instructions in how to train the models or running inference with our pretrained models in the corresponding script folder.
+Find detailed instructions in how to train the models or running inference with our pretrained models in the corresponding script folder. 
+The estimated training time is based on a single machine configured with 4 NVIDIA A10G GPUs.
+The actual training time may vary depending on your own hardware specifications.
 
-| Model Component             | Script Folder                          | Config                                                          |
-|-----------------------------|----------------------------------------|-----------------------------------------------------------------|
-| VAE                         | [scripts](./scripts/vae/sevirlr)       | [config](./scripts/vae/sevirlr/vae_sevirlr_v1.yaml)             |
-| Latent Earthformer-UNet     | [scripts](./scripts/prediff/sevirlr)   | [config](./scripts/prediff/sevirlr/prediff_sevirlr_v1.yaml)     |
-| Knowledge Alignment Network | [scripts](./scripts/alignment/sevirlr) | [config](./scripts/alignment/sevirlr/alignment_sevirlr_v1.yaml) |
+| Model Component             | Script Folder                          | Config                                                          | Estimated Time |
+|-----------------------------|----------------------------------------|-----------------------------------------------------------------|----------------|
+| VAE                         | [scripts](./scripts/vae/sevirlr)       | [config](./scripts/vae/sevirlr/vae_sevirlr_v1.yaml)             | 12 days        |
+| Latent Earthformer-UNet     | [scripts](./scripts/prediff/sevirlr)   | [config](./scripts/prediff/sevirlr/prediff_sevirlr_v1.yaml)     | 32 days        |
+| Knowledge Alignment Network | [scripts](./scripts/alignment/sevirlr) | [config](./scripts/alignment/sevirlr/alignment_sevirlr_v1.yaml) | 1 day          |
 
 ## Citing PreDiff
 
