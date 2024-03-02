@@ -18,7 +18,7 @@ pretrained_i3d_600_name = "pretrained_i3d_600.pt"
 # }
 file_id_dict = {
     pretrained_sevirlr_vae_name: "EZ-BfMnX-dhFrccXtLuCB78BPs3xBc-ke1BG4_9Jf7UblQ?e=bMplKs",
-    pretrained_sevirlr_earthformerunet_name: "EUp432GSXplCuhN7-WUF6YsBK4WrWiL8A9RZCA1Pf9D0Ag?e=kUSUb0",
+    pretrained_sevirlr_earthformerunet_name: "EUp432GSXplCuhN7-WUF6YsBK4WrWiL8A9RZCA1Pf9D0Ag?e=eY6hcQ",
     pretrained_sevirlr_alignment_name: "EWHH7y6w9D5Dg01YNX99IFQBA3tCR2a7s7z7Xv0BiNLV7Q?e=Hd9jCH",
     pretrained_i3d_400_name: "ESSxcaYvlrlAvXnsJoQ8P-kBusWJiM1D8pOu7wcNEVmzcw?e=HqWz8F",
     pretrained_i3d_600_name: "EU6tZPSExoZIgoAwu5hTkjoBBJu1RBFepjFsP68Msb6JFA?e=31aIfa",
@@ -51,4 +51,4 @@ def download_pretrained_weights(ckpt_name, save_dir=None, exist_ok=False):
         #           f" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')"
         #           f"&id={file_id}\" -O {ckpt_path} && rm -rf /tmp/cookies.txt")
         os.system(f"wget https://hkustconnect-my.sharepoint.com/:u:/g/personal/zgaoag_connect_ust_hk/{file_id}"
-                  f"&download=1 -O {ckpt_path}")
+                  f"\&download=1 -O {ckpt_path}")
