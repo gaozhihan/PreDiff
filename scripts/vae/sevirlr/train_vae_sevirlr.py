@@ -449,27 +449,30 @@ class VAESEVIRPLModule(pl.LightningModule):
         # train encoder+decoder+logvar
         aeloss, log_dict_ae = self.loss(target_bchw, pred_bchw, posterior, optimizer_idx=0, global_step=self.global_step,
                                         mask=None, last_layer=self.get_last_layer(), split="train")
+        aeloss /= self.accumulate_grad_batches
         self.log("aeloss", aeloss, prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=False)
         self.log_dict(log_dict_ae, prog_bar=False, logger=True, on_step=True, on_epoch=False, sync_dist=False)
-        g_opt.zero_grad()
+
         self.manual_backward(aeloss)
         if (batch_idx + 1) % self.accumulate_grad_batches == 0:
             self.clip_gradients(g_opt, gradient_clip_val=self.oc.optim.gradient_clip_val, gradient_clip_algorithm="norm")
             g_opt.step()
             g_sch.step()
+            g_opt.zero_grad()
 
         # train the discriminator
         discloss, log_dict_disc = self.loss(target_bchw, pred_bchw, posterior, optimizer_idx=1, global_step=self.global_step,
                                             mask=None, last_layer=self.get_last_layer(), split="train")
+        discloss /= self.accumulate_grad_batches
         self.log("discloss", discloss, prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=False)
         self.log_dict(log_dict_disc, prog_bar=False, logger=True, on_step=True, on_epoch=False, sync_dist=False)
 
-        d_opt.zero_grad()
         self.manual_backward(discloss)
         if (batch_idx + 1) % self.accumulate_grad_batches == 0:
             self.clip_gradients(d_opt, gradient_clip_val=self.oc.optim.gradient_clip_val, gradient_clip_algorithm="norm")
             d_opt.step()
             d_sch.step()
+            d_opt.zero_grad()
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         micro_batch_size = batch.shape[self.batch_axis]
