@@ -797,7 +797,7 @@ class PreDiffHKOPLModule(LatentDiffusion):
         if self.current_epoch % self.oc.trainer.check_val_every_n_epoch == 0 \
                 and self.local_rank == 0:
             if data_idx in self.train_example_data_idx_list:
-                target_seq, cond, context_seq = \
+                target_seq, cond, context_seq, mask = \
                     self.get_input(batch, return_verbose=True)
                 aligned_pred_seq_list = []
                 aligned_pred_label_list = []
@@ -851,7 +851,7 @@ class PreDiffHKOPLModule(LatentDiffusion):
         micro_batch_size = batch[0].shape[self.batch_axis]
         data_idx = int(batch_idx * micro_batch_size)
         if not self.eval_example_only or data_idx in self.val_example_data_idx_list:
-            target_seq, cond, context_seq = \
+            target_seq, cond, context_seq, mask = \
                 self.get_input(batch, return_verbose=True)
             aligned_pred_seq_list = []
             aligned_pred_label_list = []
@@ -937,7 +937,7 @@ class PreDiffHKOPLModule(LatentDiffusion):
         micro_batch_size = batch[0].shape[self.batch_axis]
         data_idx = int(batch_idx * micro_batch_size)
         if not self.eval_example_only or data_idx in self.val_example_data_idx_list:
-            target_seq, cond, context_seq = \
+            target_seq, cond, context_seq, mask = \
                 self.get_input(batch, return_verbose=True)
             target_seq_bchw = rearrange(target_seq, "b t h w c -> (b t) c h w")
             aligned_pred_seq_list = []
