@@ -6,6 +6,10 @@ pretrained_sevirlr_vae_name = "pretrained_sevirlr_vae_8x8x64_v1.pt"
 pretrained_sevirlr_earthformerunet_name = "pretrained_sevirlr_earthformerunet_v1.pt"
 pretrained_sevirlr_alignment_name = "pretrained_sevirlr_alignment_avg_x_cuboid_v1.pt"
 
+pretrained_hko_vae_name = "pretrained_hko_vae_8x8x64_v1.pt"
+pretrained_hko_earthformerunet_name = "pretrained_sevirlr_earthformerunet_v1.pt"
+pretrained_hko_alignment_name = "pretrained_hko_alignment_avg_x_cuboid_v1.pt"
+
 pretrained_i3d_400_name = "pretrained_i3d_400.pt"
 pretrained_i3d_600_name = "pretrained_i3d_600.pt"
 
@@ -20,6 +24,9 @@ file_id_dict = {
     pretrained_sevirlr_vae_name: "EZ-BfMnX-dhFrccXtLuCB78BPs3xBc-ke1BG4_9Jf7UblQ?e=bMplKs",
     pretrained_sevirlr_earthformerunet_name: "EUp432GSXplCuhN7-WUF6YsBK4WrWiL8A9RZCA1Pf9D0Ag?e=eY6hcQ",
     pretrained_sevirlr_alignment_name: "EWHH7y6w9D5Dg01YNX99IFQBA3tCR2a7s7z7Xv0BiNLV7Q?e=Hd9jCH",
+    pretrained_hko_vae_name: "",
+    pretrained_hko_earthformerunet_name: "",
+    pretrained_hko_alignment_name: "",
     pretrained_i3d_400_name: "ESSxcaYvlrlAvXnsJoQ8P-kBusWJiM1D8pOu7wcNEVmzcw?e=HqWz8F",
     pretrained_i3d_600_name: "EU6tZPSExoZIgoAwu5hTkjoBBJu1RBFepjFsP68Msb6JFA?e=31aIfa",
 }
