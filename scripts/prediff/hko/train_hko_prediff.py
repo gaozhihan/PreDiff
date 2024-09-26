@@ -20,6 +20,7 @@ import argparse
 from einops import rearrange
 
 from prediff.datasets.hko.hko_lightning import HKOLightningDataModule
+from prediff.datasets.hko.dummy import DummyHKOLightningDataModule
 from prediff.datasets.hko.visualization import vis_hko_seq
 from prediff.datasets.hko.evaluation import HKOSkillScore
 from prediff.evaluation.fvd import FrechetVideoDistance
@@ -465,6 +466,7 @@ class PreDiffHKOPLModule(LatentDiffusion):
     @classmethod
     def get_dataset_config(cls):
         cfg = OmegaConf.create()
+        cfg.dummy_debugging = False
         cfg.pd_path = None
         cfg.train_test_split_datetime = "2015-01-01 00:00:00"
         cfg.val_ratio = 0.1
@@ -688,28 +690,49 @@ class PreDiffHKOPLModule(LatentDiffusion):
     def get_hko_datamodule(dataset_cfg,
                              micro_batch_size: int = 1,
                              num_workers: int = 8):
-        dm = HKOLightningDataModule(
-            pd_path=dataset_cfg["pd_path"],
-            train_test_split_datetime=dataset_cfg["train_test_split_datetime"],
-            val_ratio=dataset_cfg["val_ratio"],
-            train_pd_path=dataset_cfg["train_pd_path"],
-            val_pd_path=dataset_cfg["val_pd_path"],
-            test_pd_path=dataset_cfg["test_pd_path"],
-            seq_len=dataset_cfg["seq_len"],
-            max_consecutive_missing=dataset_cfg["max_consecutive_missing"],
-            stride=dataset_cfg["stride"],
-            height=dataset_cfg["height"],
-            width=dataset_cfg["width"],
-            base_freq=dataset_cfg["base_freq"],
-            downscaling_scale=dataset_cfg["downscaling_scale"],
-            interpolate_resize=dataset_cfg["interpolate_resize"],
-            norm_mode=dataset_cfg["norm_mode"],
-            aug_mode=dataset_cfg["aug_mode"],
-            # LightningDataModule
-            batch_size=micro_batch_size,
-            num_workers=num_workers,
-            seed=dataset_cfg["seed"],
-            weighted_sampler=dataset_cfg["weighted_sampler"], )
+        if dataset_cfg["dummy_debugging"]:
+            dm = DummyHKOLightningDataModule(
+                pd_path=dataset_cfg["pd_path"],
+                train_test_split_datetime=dataset_cfg["train_test_split_datetime"],
+                val_ratio=dataset_cfg["val_ratio"],
+                seq_len=dataset_cfg["seq_len"],
+                max_consecutive_missing=dataset_cfg["max_consecutive_missing"],
+                stride=dataset_cfg["stride"],
+                height=dataset_cfg["height"],
+                width=dataset_cfg["width"],
+                base_freq=dataset_cfg["base_freq"],
+                downscaling_scale=dataset_cfg["downscaling_scale"],
+                interpolate_resize=dataset_cfg["interpolate_resize"],
+                norm_mode=dataset_cfg["norm_mode"],
+                aug_mode=dataset_cfg["aug_mode"],
+                # LightningDataModule
+                batch_size=micro_batch_size,
+                num_workers=num_workers,
+                seed=dataset_cfg["seed"],
+                weighted_sampler=dataset_cfg["weighted_sampler"], )
+        else:
+            dm = HKOLightningDataModule(
+                pd_path=dataset_cfg["pd_path"],
+                train_test_split_datetime=dataset_cfg["train_test_split_datetime"],
+                val_ratio=dataset_cfg["val_ratio"],
+                train_pd_path=dataset_cfg["train_pd_path"],
+                val_pd_path=dataset_cfg["val_pd_path"],
+                test_pd_path=dataset_cfg["test_pd_path"],
+                seq_len=dataset_cfg["seq_len"],
+                max_consecutive_missing=dataset_cfg["max_consecutive_missing"],
+                stride=dataset_cfg["stride"],
+                height=dataset_cfg["height"],
+                width=dataset_cfg["width"],
+                base_freq=dataset_cfg["base_freq"],
+                downscaling_scale=dataset_cfg["downscaling_scale"],
+                interpolate_resize=dataset_cfg["interpolate_resize"],
+                norm_mode=dataset_cfg["norm_mode"],
+                aug_mode=dataset_cfg["aug_mode"],
+                # LightningDataModule
+                batch_size=micro_batch_size,
+                num_workers=num_workers,
+                seed=dataset_cfg["seed"],
+                weighted_sampler=dataset_cfg["weighted_sampler"], )
         return dm
 
     @property
