@@ -51,6 +51,7 @@ def vis_hko_seq(
         plot_stride=1,
         label_rotation=0,
         label_offset=(-0.06, 0.4),
+        label_avg_int=False,
         fs=10,
         max_cols=10, ):
     """
@@ -96,6 +97,10 @@ def vis_hko_seq(
         seq_len_list = [len(seq_list[0]), ]
     else:
         raise NotImplementedError
+    if label_avg_int:
+        label_list = [f"{ele1}\nAvgInt = {np.mean(ele2): .3f}"
+                      for ele1, ele2 in zip(label_list, seq_list)]
+
     max_len = max(seq_len_list)
 
     max_len = min(max_len, max_cols)
