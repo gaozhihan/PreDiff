@@ -7,7 +7,7 @@ pretrained_sevirlr_earthformerunet_name = "pretrained_sevirlr_earthformerunet_v1
 pretrained_sevirlr_alignment_name = "pretrained_sevirlr_alignment_avg_x_cuboid_v1.pt"
 
 pretrained_hko_vae_name = "pretrained_hko_vae_8x8x64_v1.pt"
-pretrained_hko_earthformerunet_name = "pretrained_sevirlr_earthformerunet_v1.pt"
+pretrained_hko_earthformerunet_name = "pretrained_hko_earthformerunet_v1.pt"
 pretrained_hko_alignment_name = "pretrained_hko_alignment_avg_x_cuboid_v1.pt"
 
 pretrained_i3d_400_name = "pretrained_i3d_400.pt"
