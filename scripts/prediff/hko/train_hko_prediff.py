@@ -792,7 +792,7 @@ class PreDiffHKOPLModule(LatentDiffusion):
     def training_step(self, batch, batch_idx):
         loss, loss_dict = self(batch)
         self.log_dict(loss_dict, prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=False)
-        micro_batch_size = batch.shape[self.batch_axis]
+        micro_batch_size = batch[0].shape[self.batch_axis]
         data_idx = int(batch_idx * micro_batch_size)
         if self.current_epoch % self.oc.trainer.check_val_every_n_epoch == 0 \
                 and self.local_rank == 0:
@@ -848,7 +848,7 @@ class PreDiffHKOPLModule(LatentDiffusion):
             loss_dict_ema = {key + '_ema': loss_dict_ema[key] for key in loss_dict_ema}
         self.log_dict(loss_dict_no_ema, prog_bar=False, logger=True, on_step=False, on_epoch=True, sync_dist=True)
         self.log_dict(loss_dict_ema, prog_bar=False, logger=True, on_step=False, on_epoch=True, sync_dist=True)
-        micro_batch_size = batch.shape[self.batch_axis]
+        micro_batch_size = batch[0].shape[self.batch_axis]
         data_idx = int(batch_idx * micro_batch_size)
         if not self.eval_example_only or data_idx in self.val_example_data_idx_list:
             target_seq, cond, context_seq = \
@@ -934,7 +934,7 @@ class PreDiffHKOPLModule(LatentDiffusion):
             self.valid_aligned_score.reset()
 
     def test_step(self, batch, batch_idx):
-        micro_batch_size = batch.shape[self.batch_axis]
+        micro_batch_size = batch[0].shape[self.batch_axis]
         data_idx = int(batch_idx * micro_batch_size)
         if not self.eval_example_only or data_idx in self.val_example_data_idx_list:
             target_seq, cond, context_seq = \
