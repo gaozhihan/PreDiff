@@ -76,7 +76,7 @@ eval:
   val_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
   test_example_data_idx_list: [0, 16, 32, 48, 64, 72, 96, 108, 128]
   eval_example_only: true
-  eval_aligned: true
+  eval_aligned: false
   eval_unaligned: true
   num_samples_per_context: 1
   fs: 20
