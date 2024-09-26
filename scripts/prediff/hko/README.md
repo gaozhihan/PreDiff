@@ -1,4 +1,4 @@
-# Train PreDiff on HKO-7 dataset
+# Train PreDiff on [HKO-7](https://github.com/sxjscience/HKO-7) dataset
 
 ## Configurations for training and inference
 Change the configurations in [corresponding cfg.yaml](cfg.yaml)
