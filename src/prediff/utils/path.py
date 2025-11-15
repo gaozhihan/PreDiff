@@ -22,10 +22,9 @@ import os
 ROOT_DIR = "/data/25fall_nowcasting/ly/PreDiff-25fall"
 
 # ---- Experiments ----
-default_exps_dir = os.path.join(ROOT_DIR, "experiments-25fall")
+default_exps_dir = os.path.join(ROOT_DIR, "experiments1016")
 
 ROOT_DIR_pub = "/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff"
-ROOT_DIR_pub = "/data/25fall_nowcasting/25fall_aiclass/ly/PreDiff"
 # ---- Datasets ----
 default_dataset_dir = os.path.join(ROOT_DIR_pub, "datasets")
 default_dataset_sevir_dir = os.path.join(default_dataset_dir, "sevir")
