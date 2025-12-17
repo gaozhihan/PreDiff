@@ -1,0 +1,4 @@
+split,global_idx,filename,seq_idx,full_path
+train,0,2018-07-01_19-37-00.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/data_npy/2018-07-01_19-37-00.npy
+val,0,2018-07-01_19-37-00.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/data_npy/2018-07-01_19-37-00.npy
+test,0,2018-07-01_19-37-00.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/data_npy/2018-07-01_19-37-00.npy

@@ -12,6 +12,8 @@ from torch.nn.functional import avg_pool2d
 from einops import rearrange
 from ...utils.path import default_dataset_sevir_dir, default_dataset_sevirlr_dir
 
+import glob
+
 
 # SEVIR Dataset constants
 SEVIR_DATA_TYPES = ['vis', 'ir069', 'ir107', 'vil', 'lght']
@@ -889,3 +891,114 @@ class SEVIRDataLoader:
                                                  factors_dict=self.downsample_dict,
                                                  layout=self.layout)
         return ret_dict
+
+
+# 新增：轻量 NPY loader，接口与原 SEVIRDataLoader._idx_sample 返回值兼容
+class NPYSEVIRDataLoader:
+    def __init__(self,
+                 npy_dir: str = None,
+                 file_list: Sequence[str] = None,
+                 seq_len: int = 25,
+                 raw_seq_len: int = None,
+                 stride: int = 12,
+                 batch_size: int = 1,
+                 layout: str = 'NHWT',
+                 output_type = np.float32,
+                 preprocess: bool = True,
+                 rescale_method: str = '01',
+                 verbose: bool = False):
+        assert (npy_dir is not None) or (file_list is not None)
+        if file_list is None:
+            file_list = sorted(glob.glob(os.path.join(npy_dir, "*.npy")))
+        else:
+            file_list = list(file_list)
+        if len(file_list) == 0:
+            raise ValueError("No .npy files found for NPYSEVIRDataLoader.")
+        self.files = file_list
+        # read raw_seq_len from first file if not provided
+        if raw_seq_len is None:
+            first = np.load(self.files[0])
+            assert first.ndim == 3, "expected npy shape (H,W,T)"
+            raw_seq_len = first.shape[2]
+        self.raw_seq_len = int(raw_seq_len)
+        assert seq_len <= self.raw_seq_len
+        self.seq_len = int(seq_len)
+        self.stride = int(stride)
+        self.batch_size = int(batch_size)
+        self.layout = layout
+        self.output_type = output_type
+        self.preprocess = preprocess
+        self.rescale_method = rescale_method
+        self.verbose = verbose
+        self.data_types = ['vil']
+        # build simple samples dataframe similar to original loader
+        self._samples = pd.DataFrame({
+            'vil_filename': self.files,
+            'vil_index': [0] * len(self.files)
+        })
+        self.num_shard = 1
+        self.rank = 0
+        self.split_mode = 'uneven'
+        self.reset()
+
+    @property
+    def num_seq_per_event(self):
+        return 1 + (self.raw_seq_len - self.seq_len) // self.stride
+
+    @property
+    def total_num_seq(self):
+        return int(self.num_seq_per_event * self.num_event)
+
+    @property
+    def total_num_event(self):
+        return int(self._samples.shape[0])
+
+    @property
+    def num_event(self):
+        return int(self.total_num_event // self.num_shard)
+
+    def reset(self, shuffle: bool = False):
+        self._curr_event_idx = 0
+        self._curr_seq_idx = 0
+        self._sample_count = 0
+        if shuffle:
+            self._samples = self._samples.sample(frac=1).reset_index(drop=True)
+
+    def __len__(self):
+        return self.total_num_seq // self.batch_size
+
+    def _idx_sample(self, index):
+        """
+        index -> returns dict with key 'vil' as np.ndarray shape (batch_size, H, W, seq_len)
+        """
+        event_idx = (index * self.batch_size) // self.num_seq_per_event
+        seq_idx = (index * self.batch_size) % self.num_seq_per_event
+        num_sampled = 0
+        sampled_idx_list = []
+        while num_sampled < self.batch_size:
+            sampled_idx_list.append({'event_idx': event_idx,
+                                     'seq_idx': seq_idx})
+            seq_idx += 1
+            if seq_idx >= self.num_seq_per_event:
+                event_idx += 1
+                seq_idx = 0
+            num_sampled += 1
+
+        ret = {}
+        for sampled_idx in sampled_idx_list:
+            fname = self._samples.iloc[sampled_idx['event_idx']]['vil_filename']
+            seq_start = sampled_idx['seq_idx'] * self.stride
+            seq_slice = slice(seq_start, seq_start + self.seq_len)
+            arr = np.load(fname)  # shape (H,W,T)
+            # ensure dtype
+            arr = arr.astype(self.output_type)
+            sampled_seq = np.expand_dims(arr[:, :, seq_slice], axis=0)  # (1, H, W, seq_len)
+            if 'vil' in ret:
+                ret['vil'] = np.concatenate((ret['vil'], sampled_seq), axis=0)
+            else:
+                ret['vil'] = sampled_seq
+        # convert to torch tensors (reuse helper from file)
+        ret = SEVIRDataLoader.data_dict_to_tensor(ret, data_types=self.data_types)
+        if self.preprocess:
+            ret = SEVIRDataLoader.preprocess_data_dict(ret, data_types=self.data_types, layout=self.layout, rescale=self.rescale_method)
+        return ret

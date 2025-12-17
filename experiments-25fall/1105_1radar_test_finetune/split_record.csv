@@ -1,0 +1,11 @@
+split,global_idx,filename,seq_idx,full_path
+train,0,2017-01-12_00-00-52.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-12_00-00-52.npy
+train,1,2017-01-12_00-00-52.npy,1,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-12_00-00-52.npy
+train,2,2017-01-12_00-00-52.npy,2,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-12_00-00-52.npy
+train,3,2017-01-15_13-20-52.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-15_13-20-52.npy
+train,4,2017-01-15_13-20-52.npy,1,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-15_13-20-52.npy
+train,5,2017-01-15_13-20-52.npy,2,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-15_13-20-52.npy
+train,6,2017-01-15_14-20-52.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-15_14-20-52.npy
+train,7,2017-01-15_14-20-52.npy,1,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-15_14-20-52.npy
+val,0,2017-01-15_14-20-52.npy,2,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-15_14-20-52.npy
+test,0,2017-01-17_04-00-52.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-17_04-00-52.npy

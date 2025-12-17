@@ -1,0 +1,4 @@
+split,global_idx,filename,seq_idx,full_path
+train,0,2017-01-12_00-00-52.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-12_00-00-52.npy
+val,0,2017-01-12_00-00-52.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-12_00-00-52.npy
+test,0,2017-01-12_00-00-52.npy,0,/data/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_128x128x30/2017-01-12_00-00-52.npy

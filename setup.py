@@ -27,10 +27,10 @@ if VERSION.endswith('dev'):
     VERSION = VERSION + datetime.today().strftime('%Y%m%d')
 
 requirements = [
-    'torch==2.0.1',
-    'torchvision==0.15.2',
-    'lightning>=2.0',
-    'torchmetrics==1.2.0',
+    # 'torch',
+    # 'torchvision',
+    # 'lightning',
+    'torchmetrics',
     'pandas',
     'h5py',
     'yacs',

@@ -1,0 +1,127 @@
+layout:
+  img_height: 128
+  img_width: 128
+  layout: NHWC
+optim:
+  seed: 0
+  total_batch_size: 512
+  micro_batch_size: 16
+  float32_matmul_precision: high
+  method: adam
+  lr: 5.0e-06
+  wd: 1.0e-05
+  betas:
+  - 0.5
+  - 0.9
+  gradient_clip_val: 1.0
+  max_epochs: 5
+  warmup_percentage: 0.2
+  lr_scheduler_mode: cosine
+  min_lr_ratio: 0.001
+  warmup_min_lr_ratio: 0.1
+  monitor: val/total_loss
+  early_stop: false
+  early_stop_mode: min
+  early_stop_patience: 5
+  save_top_k: 5
+logging:
+  logging_prefix: VAE_GAN_SEVIR-LR
+  monitor_lr: true
+  monitor_device: false
+  track_grad_norm: -1
+  use_wandb: false
+trainer:
+  check_val_every_n_epoch: 1
+  log_step_ratio: 0.001
+  precision: 32
+  find_unused_parameters: true
+  num_sanity_val_steps: 2
+eval:
+  train_example_data_idx_list:
+  - 0
+  val_example_data_idx_list:
+  - 0
+  test_example_data_idx_list:
+  - 0
+  - 16
+  - 32
+  - 48
+  - 64
+  - 72
+  - 96
+  - 108
+  - 128
+  eval_example_only: false
+  num_vis: 10
+model:
+  data_channels: 1
+  down_block_types:
+  - DownEncoderBlock2D
+  - DownEncoderBlock2D
+  - DownEncoderBlock2D
+  - DownEncoderBlock2D
+  in_channels: 1
+  sample_size: 512
+  block_out_channels:
+  - 128
+  - 256
+  - 512
+  - 512
+  act_fn: silu
+  latent_channels: 64
+  up_block_types:
+  - UpDecoderBlock2D
+  - UpDecoderBlock2D
+  - UpDecoderBlock2D
+  - UpDecoderBlock2D
+  norm_num_groups: 32
+  layers_per_block: 2
+  out_channels: 1
+  loss:
+    disc_start: 50001
+    kl_weight: 1.0e-06
+    disc_weight: 0.5
+    perceptual_weight: 0.0
+    disc_in_channels: 1
+dataset:
+  dataset_name: sevirlr_npy30
+  img_height: 128
+  img_width: 128
+  in_len: 10
+  out_len: 20
+  seq_len: 30
+  plot_stride: 1
+  interval_real_time: 10
+  sample_mode: sequent
+  stride: 6
+  layout: NTHWC
+  start_date: null
+  train_val_split_date:
+  - 2019
+  - 1
+  - 1
+  train_test_split_date:
+  - 2019
+  - 6
+  - 1
+  end_date: null
+  metrics_mode: '0'
+  metrics_list:
+  - csi
+  - pod
+  - sucr
+  - bias
+  threshold_list:
+  - 16
+  - 42.5
+  - 74
+  - 133
+  - 160
+  - 181
+  - 219
+  aug_mode: '2'
+  npy_dir: /home/user01/25fall_nowcasting/25fall_aiclass/lesson_resource/data/prediff/datasets/sevirlr/radar_npy_len13_mask64
+  npy_num_samples: 10
+  random_split: false
+  split_seed: 42
+  val_ratio: 0.1

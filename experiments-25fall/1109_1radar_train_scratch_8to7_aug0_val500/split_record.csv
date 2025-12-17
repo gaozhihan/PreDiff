@@ -1,0 +1,4 @@
+split,global_idx,filename,seq_idx,full_path
+train,0,20170112_000052.npy,0,/data/25fall_nowcasting/ly/PreDiff-25fall/ly_code/1109train_1radar/data_1radar/20170112_000052.npy
+val,0,20170112_000052.npy,0,/data/25fall_nowcasting/ly/PreDiff-25fall/ly_code/1109train_1radar/data_1radar/20170112_000052.npy
+test,0,20170112_000052.npy,0,/data/25fall_nowcasting/ly/PreDiff-25fall/ly_code/1109train_1radar/data_1radar/20170112_000052.npy

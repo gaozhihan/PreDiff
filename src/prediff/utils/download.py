@@ -9,12 +9,19 @@ pretrained_sevirlr_alignment_name = "pretrained_sevirlr_alignment_avg_x_cuboid_v
 pretrained_i3d_400_name = "pretrained_i3d_400.pt"
 pretrained_i3d_600_name = "pretrained_i3d_600.pt"
 
+# file_id_dict = {
+#     pretrained_sevirlr_vae_name: "10OicEQuOPzSKDp5WYF3zDHsL-COywe98",
+#     pretrained_sevirlr_earthformerunet_name: "1cVB0Sm2V4OMTLxNNEXlb2__ONqSAjUDJ",
+#     pretrained_sevirlr_alignment_name: "1CzrzNVDVTyc8ivnWqEOiJnrN6wraY6fy",
+#     pretrained_i3d_400_name: "1UwfpQEIi1jJqGmTmRWcIClEpXF3jKwOq",
+#     pretrained_i3d_600_name: "1wiueaTRfi0DqJUUaIF3l_ze8OMNF5NIQ",
+# }
 file_id_dict = {
-    pretrained_sevirlr_vae_name: "ifknrw.sn.files.1drv.com/y4mHwaGuDSwdB23r1gQvSPgRbxYnqDJleZA725wzW0qHyGvDWITlvKgWzEGJeqNSH_QUpMWOsD3-DRgtT4FFR3FjbjrSCpq9mA7qMdoORSl6un65pJ0mpFLN0iukIGAPVC4AIIZNJAq8LQIo6KVZUOdjSEbBtfaKDwislTnL7lGI15VSwX2DNXBbLWjqTzy6afmBFFxVDArCrkjtbs_st4prWEqAcNF559zLQ8zhdKEv2s",
-    pretrained_sevirlr_earthformerunet_name: "xiiula.sn.files.1drv.com/y4m7WESstIWGBGRDr5u4Zs-lYTF1Pf1XNOajmULFfBNcEJ5c0du5L2uy8NPDtbueTv15gIZaVQF7-YLtOaLrkD8KLjnEr_KFVGpVd-K3nt6cWyGcQZqaJvNr8wLUr6AacMh7t6PGuts2B1OKHYqzssr5HAtS3tr80sIRhgNekxV5mcxdlphj4hdghaelP01O4mdNCSKgewMO3Qn-zQDlM_7SZwSCl-fH70hbMzBfYN62wQ",
-    pretrained_sevirlr_alignment_name: "ifjj0a.sn.files.1drv.com/y4m-gMKkZaeLoKWTnFenWWprSOPDh4mBkqCr7J14TmwOq8HvBcuA4gqR9I30jriOrIUsfVfcepKEWpDbIn0c5hg5wZ03LhdFp71eu5Vhj9T1dzSA0QOumdbWy2tpOLj2NOOz8HD55LWRJdvMGx6K2qWyN8MDvAJ-2256gVGbHgSzTGXBCJfe8UKm5NXxW3YWrv5-dme11fvPGqDqEQjVMQmYLQd0v6mPJBg4BJBM6n31PQ",
-    pretrained_i3d_400_name: "iflkra.sn.files.1drv.com/y4mG3BFtl8R9gOYQrPsgR_E0iEGBC59OZbq5fJclm8s7Gjybz4FLFXX8K1i4AVKI0brk0OdlHL8sbPLIREyLY6PkLKCqeXwzu4GCfsyY-70WlDR7L-M3qYHBT4kAjKHVtf8WoEm2gIlCA6m6F-nMZUnEb8jUc6QL550RABAr2cLmyU1Au3kDdX4GVCPL0sM58boeiutB3kumRd6UuqabGTcOrEnLUWue8gOjGIJfuigQyc",
-    pretrained_i3d_600_name: "xijdzg.sn.files.1drv.com/y4m9JgY-oUwOYkAEXDEU7j3OI-btR_048Sf9XLY-fMrDmc6xIoTCB8r76RoZE1Fq8Ha5qRFKIMSlMVuACe8rEXrfzaztxI91daUeQe4ELUua1jACAxq1Yozq0cnXXbR6ah_kjHV6cABXlzSVTt4lhjyEEEZ08ntbj-R57WrbmsXyztrudLzMKlKq7AP6O3qlx7yAS1BwH07hPd8ufKd1mb0Dp2q1nR8fgRWtKiJt9AWjLI",
+    pretrained_sevirlr_vae_name: "EZ-BfMnX-dhFrccXtLuCB78BPs3xBc-ke1BG4_9Jf7UblQ?e=bMplKs",
+    pretrained_sevirlr_earthformerunet_name: "EUp432GSXplCuhN7-WUF6YsBK4WrWiL8A9RZCA1Pf9D0Ag?e=eY6hcQ",
+    pretrained_sevirlr_alignment_name: "EWHH7y6w9D5Dg01YNX99IFQBA3tCR2a7s7z7Xv0BiNLV7Q?e=Hd9jCH",
+    pretrained_i3d_400_name: "ESSxcaYvlrlAvXnsJoQ8P-kBusWJiM1D8pOu7wcNEVmzcw?e=HqWz8F",
+    pretrained_i3d_600_name: "EU6tZPSExoZIgoAwu5hTkjoBBJu1RBFepjFsP68Msb6JFA?e=31aIfa",
 }
 
 
@@ -37,5 +44,11 @@ def download_pretrained_weights(ckpt_name, save_dir=None, exist_ok=False):
     else:
         os.makedirs(save_dir, exist_ok=True)
         file_id = file_id_dict[ckpt_name]
-        os.system(f"wget https://{file_id}?AVOverride=1"
-                  f" -O {ckpt_path}")
+        # os.system(f"wget --load-cookies /tmp/cookies.txt "
+        #           f"\"https://docs.google.com/uc?export=download&confirm="
+        #           f"$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "
+        #           f"'https://docs.google.com/uc?export=download&id={file_id}'"
+        #           f" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')"
+        #           f"&id={file_id}\" -O {ckpt_path} && rm -rf /tmp/cookies.txt")
+        os.system(f"wget https://hkustconnect-my.sharepoint.com/:u:/g/personal/zgaoag_connect_ust_hk/{file_id}"
+                  f"\&download=1 -O {ckpt_path}")

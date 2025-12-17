@@ -52,7 +52,8 @@ def vis_sevir_seq(
         label_offset=(-0.06, 0.4),
         label_avg_int=False,
         fs=10,
-        max_cols=10, ):
+        max_cols=10, 
+        title: Optional[str] = None,):
     """
     Parameters
     ----------
@@ -67,12 +68,41 @@ def vis_sevir_seq(
     max_cols: int
         The maximum number of columns in the figure.
     """
-
+    #=====================原来的色阶=============
     def cmap_dict(s):
         return {'cmap': get_cmap(s, encoded=True)[0],
                 'norm': get_cmap(s, encoded=True)[1],
                 'vmin': get_cmap(s, encoded=True)[2],
                 'vmax': get_cmap(s, encoded=True)[3]}
+    
+    
+    # #=====================何老师雷达色阶=============
+    # from matplotlib.colors import ListedColormap, Normalize
+
+    # def cmap_dict(s):
+    #     # ===== 自定义色阶 =====
+    #     color_translate = [
+    #         (0, 0, 0, 0),
+    #         (1, 159, 246, 255),
+    #         (0, 236, 236, 255),
+    #         (1, 216, 0, 255),
+    #         (1, 144, 0, 255),
+    #         (255, 255, 0, 255),
+    #         (231, 192, 0, 255),
+    #         (255, 144, 0, 255),
+    #         (254, 0, 0, 255),
+    #         (214, 0, 0, 255),
+    #         (192, 0, 0, 255),
+    #         (255, 0, 240, 255),
+    #         (149, 0, 180, 255),
+    #         (174, 144, 240, 255)
+    #     ]
+    #     color_translate = np.array(color_translate) / 255.0  # 归一化到0-1
+    #     cmap = ListedColormap(color_translate[:, :3])
+    #     # ===== 设定色阶范围 =====
+    #     vmin, vmax = 0, 255
+    #     norm = Normalize(vmin=vmin, vmax=vmax)
+    #     return {'cmap': cmap, 'norm': norm}
 
     # cmap_dict = lambda s: {'cmap': get_cmap(s, encoded=True)[0],
     #                        'norm': get_cmap(s, encoded=True)[1],
@@ -145,6 +175,7 @@ def vis_sevir_seq(
             ax[i][j].xaxis.set_ticks([])
             ax[i][j].yaxis.set_ticks([])
 
+    # ==============原来的色柱=============
     # Legend of thresholds
     num_thresh_legend = len(VIL_LEVELS) - 1
     legend_elements = [Patch(facecolor=VIL_COLORS[i],
@@ -154,5 +185,49 @@ def vis_sevir_seq(
                     bbox_to_anchor=(-1.2, -0.),
                     borderaxespad=0, frameon=False, fontsize='10')
     plt.subplots_adjust(hspace=0.05, wspace=0.05)
+    
+    # # ===== 自定义何老师给的雷达色阶 =====
+    # color_translate = np.array([
+    #     (0, 0, 0, 0),
+    #     (1, 159, 246, 255),
+    #     (0, 236, 236, 255),
+    #     (1, 216, 0, 255),
+    #     (1, 144, 0, 255),
+    #     (255, 255, 0, 255),
+    #     (231, 192, 0, 255),
+    #     (255, 144, 0, 255),
+    #     (254, 0, 0, 255),
+    #     (214, 0, 0, 255),
+    #     (192, 0, 0, 255),
+    #     (255, 0, 240, 255),
+    #     (149, 0, 180, 255),
+    #     (174, 144, 240, 255)
+    # ]) / 255.0
+
+    # # ===== 设置分段范围（根据你的0-180范围） =====
+    # levels = [0, 10, 20, 30, 40, 50, 60, 70, 90, 110, 130, 150, 180]
+    # sample_idx = np.linspace(0, len(color_translate) - 1, len(levels)).astype(int)
+
+    # legend_elements = [
+    #     Patch(facecolor=color_translate[idx][:3], 
+    #         label=f"{levels[i]}–{levels[i+1] if i < len(levels)-1 else '180'}")
+    #     for i, idx in enumerate(sample_idx[:-1])
+    # ]
+
+    # ax[0][0].legend(
+    #     handles=legend_elements,
+    #     loc='center left',
+    #     bbox_to_anchor=(-1.15, 0.0),
+    #     borderaxespad=0,
+    #     frameon=False,
+    #     fontsize='10'
+    # )
+
+
+    
+    # ✅ 添加全局标题
+    if title is not None:
+        fig.suptitle(title, fontsize=fs + 2, fontweight='bold', y=0.98)
+    
     plt.savefig(save_path)
     plt.close(fig)
